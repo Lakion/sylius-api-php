@@ -3,7 +3,7 @@
     "description": "Sylius API PHP client library",
     "license": "MIT",
     "require": {
-        "guzzlehttp/guzzle": "~3.8",
+        "guzzlehttp/guzzle": "~5.2",
         "symfony/serializer": "~2.7.@dev"
     },
     "require-dev": {

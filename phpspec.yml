@@ -2,4 +2,4 @@ suites:
     main:
         namespace: Sylius\Api
         psr4_prefix: Sylius\Api
-        src_path: .
+        src_path: src
