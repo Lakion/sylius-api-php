@@ -7,11 +7,11 @@ use GuzzleHttp\Message\Request;
 use GuzzleHttp\Post\PostBodyInterface;
 use GuzzleHttp\Post\PostFileInterface;
 use PhpSpec\ObjectBehavior;
-use Sylius\Api\Factory\PostFileFactory;
+use Sylius\Api\Factory\PostFileFactoryInterface;
 
 class ClientSpec extends ObjectBehavior
 {
-    function let(HttpClientInterface $httpClient, PostFileFactory $postFileFactory)
+    function let(HttpClientInterface $httpClient, PostFileFactoryInterface $postFileFactory)
     {
         $this->beConstructedWith($httpClient, $postFileFactory);
     }

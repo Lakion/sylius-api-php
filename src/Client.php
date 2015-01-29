@@ -7,6 +7,7 @@ use GuzzleHttp\Message\ResponseInterface;
 use GuzzleHttp\Post\PostBodyInterface;
 use GuzzleHttp\Url;
 use Sylius\Api\Factory\PostFileFactory;
+use Sylius\Api\Factory\PostFileFactoryInterface;
 
 class Client
 {
@@ -16,7 +17,7 @@ class Client
     private $httpClient;
     private $postFileFactory;
 
-    public function __construct(HttpClientInterface $httpClient, PostFileFactory $postFileFactory = null)
+    public function __construct(HttpClientInterface $httpClient, PostFileFactoryInterface $postFileFactory = null)
     {
         $this->postFileFactory = $postFileFactory ?: new PostFileFactory();
         $this->httpClient = $httpClient;

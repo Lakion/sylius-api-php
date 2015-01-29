@@ -3,14 +3,11 @@
 namespace Sylius\Api\Factory;
 
 use GuzzleHttp\Post\PostFile;
-use GuzzleHttp\Post\PostFileInterface;
 
-class PostFileFactory
+class PostFileFactory implements PostFileFactoryInterface
 {
     /**
-     * @param  string            $key
-     * @param  string            $filePath
-     * @return PostFileInterface
+     * {@inheritdoc }
      */
     public function create($key, $filePath)
     {
