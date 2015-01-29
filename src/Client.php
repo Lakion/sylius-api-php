@@ -12,9 +12,7 @@
 namespace Sylius\Api;
 
 use GuzzleHttp\ClientInterface as HttpClientInterface;
-use GuzzleHttp\Message\ResponseInterface;
 use GuzzleHttp\Post\PostBodyInterface;
-use GuzzleHttp\Url;
 use Sylius\Api\Factory\PostFileFactory;
 use Sylius\Api\Factory\PostFileFactoryInterface;
 
@@ -23,12 +21,15 @@ use Sylius\Api\Factory\PostFileFactoryInterface;
  *
  * @author Michał Marcinkowski <michal.marcinkowski@lakion.com>
  */
-class Client
+class Client implements ClientInterface
 {
     /**
      * @var HttpClientInterface $httpClient
      */
     private $httpClient;
+    /**
+     * @var PostFileFactoryInterface $postFileFactory
+     */
     private $postFileFactory;
 
     public function __construct(HttpClientInterface $httpClient, PostFileFactoryInterface $postFileFactory = null)
@@ -38,8 +39,7 @@ class Client
     }
 
     /**
-     * @param  string|Url        $url URL or URI template
-     * @return ResponseInterface
+     * {@inheritdoc }
      */
     public function get($url)
     {
@@ -47,9 +47,7 @@ class Client
     }
 
     /**
-     * @param  string|Url        $url  URL or URI template
-     * @param  array             $body
-     * @return ResponseInterface
+     * {@inheritdoc }
      */
     public function patch($url, array $body)
     {
@@ -57,9 +55,7 @@ class Client
     }
 
     /**
-     * @param  string|Url        $url  URL or URI template
-     * @param  array             $body
-     * @return ResponseInterface
+     * {@inheritdoc }
      */
     public function put($url, array $body)
     {
@@ -67,8 +63,7 @@ class Client
     }
 
     /**
-     * @param  string|Url        $url URL or URI template
-     * @return ResponseInterface
+     * {@inheritdoc }
      */
     public function delete($url)
     {
@@ -76,10 +71,7 @@ class Client
     }
 
     /**
-     * @param  string|Url        $url   URL or URI template
-     * @param  array             $body
-     * @param  array             $files
-     * @return ResponseInterface
+     * {@inheritdoc }
      */
     public function post($url, $body, array $files = array())
     {
