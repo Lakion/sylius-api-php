@@ -7,13 +7,13 @@ use GuzzleHttp\Message\Request;
 use GuzzleHttp\Post\PostBodyInterface;
 use GuzzleHttp\Post\PostFileInterface;
 use PhpSpec\ObjectBehavior;
-use Prophecy\Argument;
+use Sylius\Api\Factory\PostFileFactory;
 
 class ClientSpec extends ObjectBehavior
 {
-    function let(HttpClientInterface $httpClient)
+    function let(HttpClientInterface $httpClient, PostFileFactory $postFileFactory)
     {
-        $this->beConstructedWith($httpClient);
+        $this->beConstructedWith($httpClient, $postFileFactory);
     }
 
     function it_is_initializable()
@@ -25,6 +25,29 @@ class ClientSpec extends ObjectBehavior
     {
         $httpClient->get('/uri')->shouldBeCalled();
         $this->get('/uri');
+    }
+
+    function it_sends_post_request_to_the_given_url_with_a_given_body($httpClient, Request $request)
+    {
+        $httpClient->createRequest('POST', '/uri', ['body' => ['key' => 'value']])->willReturn($request);
+        $httpClient->createRequest('POST', '/uri', ['body' => ['key' => 'value']])->shouldBeCalled();
+        $httpClient->send($request)->shouldBeCalled();
+        $this->post('/uri', ['key' => 'value']);
+    }
+
+    function it_sends_post_request_to_the_given_url_with_a_given_body_with_given_files($httpClient, Request $request, PostBodyInterface $postbody, $postFileFactory, PostFileInterface $file1, PostFileInterface $file2)
+    {
+        $httpClient->createRequest('POST', '/uri', ['body' => ['key' => 'value']])->willReturn($request);
+        $request->getBody()->willReturn($postbody);
+        $postFileFactory->create('images[0][file]', 'path/to/file1.jpg')->willReturn($file1);
+        $postFileFactory->create('images[1][file]', 'path/to/file2.jpg')->willReturn($file2);
+
+        $httpClient->createRequest('POST', '/uri', ['body' => ['key' => 'value']])->shouldBeCalled();
+        $postbody->addFile($file1)->shouldBeCalled();
+        $postbody->addFile($file2)->shouldBeCalled();
+        $httpClient->send($request)->shouldBeCalled();
+
+        $this->post('/uri', ['key' => 'value'], ['images[0][file]' => 'path/to/file1.jpg', 'images[1][file]' => 'path/to/file2.jpg']);
     }
 
     function it_sends_patch_request_to_the_given_url_with_a_given_body($httpClient)
