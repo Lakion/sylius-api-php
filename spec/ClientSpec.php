@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of the Lakion package.
+ *
+ * (c) Lakion
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace spec\Sylius\Api;
 
 use GuzzleHttp\ClientInterface as HttpClientInterface;
@@ -9,6 +18,9 @@ use GuzzleHttp\Post\PostFileInterface;
 use PhpSpec\ObjectBehavior;
 use Sylius\Api\Factory\PostFileFactoryInterface;
 
+/**
+ * @author Michał Marcinkowski <michal.marcinkowski@lakion.com>
+ */
 class ClientSpec extends ObjectBehavior
 {
     function let(HttpClientInterface $httpClient, PostFileFactoryInterface $postFileFactory)
