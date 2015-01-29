@@ -39,6 +39,15 @@ class Client implements ClientInterface
     }
 
     /**
+     * @param  string     $resource Plural name of the resource
+     * @return ApiInterface
+     */
+    public function getApi($resource)
+    {
+        return new GenericApi($this, $resource);
+    }
+
+    /**
      * {@inheritdoc }
      */
     public function get($url)

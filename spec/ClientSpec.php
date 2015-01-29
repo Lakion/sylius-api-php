@@ -33,6 +33,16 @@ class ClientSpec extends ObjectBehavior
         $this->shouldHaveType('Sylius\Api\Client');
     }
 
+    function it_implements_client_interface()
+    {
+        $this->shouldImplement('Sylius\Api\ClientInterface');
+    }
+
+    function it_gets_api_by_resource()
+    {
+        $this->getApi('products')->shouldReturnAnInstanceOf('Sylius\Api\ApiInterface');
+    }
+
     function it_sends_get_request_to_the_given_url($httpClient)
     {
         $httpClient->get('/uri')->shouldBeCalled();

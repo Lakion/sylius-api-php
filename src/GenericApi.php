@@ -48,7 +48,7 @@ class GenericApi implements ApiInterface
         if (($uri[strlen($uri) - 1]) != '/') {
             $uri = sprintf('%s/', $uri);
         }
-        $this->uri = $uri;
+        $this->uri = strtolower($uri);
     }
 
     /**

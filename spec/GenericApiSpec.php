@@ -42,7 +42,7 @@ class GenericApiSpec extends ObjectBehavior
 
     function it_implements_api_interface()
     {
-        $this->shouldHaveType('Sylius\Api\ApiInterface');
+        $this->shouldImplement('Sylius\Api\ApiInterface');
     }
 
     function it_gets_resource_by_id($client)
