@@ -69,7 +69,8 @@ class GenericApiSpec extends ObjectBehavior
         $response->json()->willReturn(['id' => 1, 'field1' => 'field1Value', 'field2' => 'field2Value', 'images[0][file]' => 'path/to/file1.jpg']);
         $client->post('uri/', ['field1' => 'field1Value', 'field2' => 'field2Value'], ['images[0][file]' => 'path/to/file1.jpg'])->willReturn($response);
         $client->post('uri/', ['field1' => 'field1Value', 'field2' => 'field2Value'], ['images[0][file]' => 'path/to/file1.jpg'])->shouldBeCalled();
-        $this->create(['field1' => 'field1Value', 'field2' => 'field2Value'], ['images[0][file]' => 'path/to/file1.jpg'])->shouldReturn(['id' => 1, 'field1' => 'field1Value', 'field2' => 'field2Value', 'images[0][file]' => 'path/to/file1.jpg']);
+        $this->create(['field1' => 'field1Value', 'field2' => 'field2Value'], ['images[0][file]' => 'path/to/file1.jpg'])
+            ->shouldReturn(['id' => 1, 'field1' => 'field1Value', 'field2' => 'field2Value', 'images[0][file]' => 'path/to/file1.jpg']);
     }
 
     function it_updates_resource_with_body($client, ResponseInterface $response)
