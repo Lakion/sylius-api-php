@@ -64,7 +64,10 @@ class GenericApi implements ApiInterface
      */
     public function get($id)
     {
-        return $this->client->get(sprintf('%s%s', $this->getUri(), $id));
+        $response = $this->client->get(sprintf('%s%s', $this->getUri(), $id));
+        $responseType = $response->getHeader('Content-Type');
+
+        return (strpos($responseType, 'json') !== FALSE) ? $response->json() : $response->xml();
     }
 
     /**
@@ -72,15 +75,18 @@ class GenericApi implements ApiInterface
      */
     public function create(array $body, array $files = [])
     {
-        return $this->client->post($this->getUri(), $body, $files);
+        $response = $this->client->post($this->getUri(), $body, $files);
+        $responseType = $response->getHeader('Content-Type');
+
+        return (strpos($responseType, 'json') !== FALSE) ? $response->json() : $response->xml();
     }
 
     /**
      * {@inheritdoc }
      */
-    public function update(array $body, array $files = [])
+    public function update($id, array $body, array $files = [])
     {
-        $response = $this->client->patch($this->getUri(), $body);
+        $response = $this->client->patch(sprintf('%s%s', $this->getUri(), $id), $body);
 
         return (204 === $response->getStatusCode());
     }

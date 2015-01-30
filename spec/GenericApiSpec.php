@@ -45,38 +45,47 @@ class GenericApiSpec extends ObjectBehavior
         $this->shouldImplement('Sylius\Api\ApiInterface');
     }
 
-    function it_gets_resource_by_id($client)
+    function it_gets_resource_by_id($client, ResponseInterface $response)
     {
+        $response->getHeader('Content-Type')->willReturn('application/json');
+        $response->json()->willReturn(['id' => 1, 'name' => 'Resource name']);
+        $client->get('uri/1')->willReturn($response);
         $client->get('uri/1')->shouldBeCalled();
-        $this->get(1);
+        $this->get(1)->shouldReturn(['id' => 1, 'name' => 'Resource name']);
     }
 
-    function it_creates_resource_with_body($client)
+    function it_creates_resource_with_body($client, ResponseInterface $response)
     {
+        $response->getHeader('Content-Type')->willReturn('application/json');
+        $response->json()->willReturn(['id' => 1, 'field1' => 'field1Value', 'field2' => 'field2Value']);
+        $client->post('uri/', ['field1' => 'field1Value', 'field2' => 'field2Value'], [])->willReturn($response);
         $client->post('uri/', ['field1' => 'field1Value', 'field2' => 'field2Value'], [])->shouldBeCalled();
-        $this->create(['field1' => 'field1Value', 'field2' => 'field2Value']);
+        $this->create(['field1' => 'field1Value', 'field2' => 'field2Value'])->shouldReturn(['id' => 1, 'field1' => 'field1Value', 'field2' => 'field2Value']);
     }
 
-    function it_creates_resource_with_body_and_files($client)
+    function it_creates_resource_with_body_and_files($client, ResponseInterface $response)
     {
+        $response->getHeader('Content-Type')->willReturn('application/json');
+        $response->json()->willReturn(['id' => 1, 'field1' => 'field1Value', 'field2' => 'field2Value', 'images[0][file]' => 'path/to/file1.jpg']);
+        $client->post('uri/', ['field1' => 'field1Value', 'field2' => 'field2Value'], ['images[0][file]' => 'path/to/file1.jpg'])->willReturn($response);
         $client->post('uri/', ['field1' => 'field1Value', 'field2' => 'field2Value'], ['images[0][file]' => 'path/to/file1.jpg'])->shouldBeCalled();
-        $this->create(['field1' => 'field1Value', 'field2' => 'field2Value'], ['images[0][file]' => 'path/to/file1.jpg']);
+        $this->create(['field1' => 'field1Value', 'field2' => 'field2Value'], ['images[0][file]' => 'path/to/file1.jpg'])->shouldReturn(['id' => 1, 'field1' => 'field1Value', 'field2' => 'field2Value', 'images[0][file]' => 'path/to/file1.jpg']);
     }
 
     function it_updates_resource_with_body($client, ResponseInterface $response)
     {
         $response->getStatusCode()->willReturn(204);
-        $client->patch('uri/', ['field1' => 'field1Value', 'field2' => 'field2Value'])->willReturn($response);
-        $client->patch('uri/', ['field1' => 'field1Value', 'field2' => 'field2Value'])->shouldBeCalled();
-        $this->update(['field1' => 'field1Value', 'field2' => 'field2Value'])->shouldReturn(true);
+        $client->patch('uri/1', ['field1' => 'field1Value', 'field2' => 'field2Value'])->willReturn($response);
+        $client->patch('uri/1', ['field1' => 'field1Value', 'field2' => 'field2Value'])->shouldBeCalled();
+        $this->update(1, ['field1' => 'field1Value', 'field2' => 'field2Value'])->shouldReturn(true);
     }
 
     function it_returns_false_if_resource_update_was_not_successful($client, ResponseInterface $response)
     {
         $response->getStatusCode()->willReturn(400);
-        $client->patch('uri/', ['field1' => 'field1Value', 'field2' => 'field2Value'])->willReturn($response);
-        $client->patch('uri/', ['field1' => 'field1Value', 'field2' => 'field2Value'])->shouldBeCalled();
-        $this->update(['field1' => 'field1Value', 'field2' => 'field2Value'])->shouldReturn(false);
+        $client->patch('uri/1', ['field1' => 'field1Value', 'field2' => 'field2Value'])->willReturn($response);
+        $client->patch('uri/1', ['field1' => 'field1Value', 'field2' => 'field2Value'])->shouldBeCalled();
+        $this->update(1, ['field1' => 'field1Value', 'field2' => 'field2Value'])->shouldReturn(false);
     }
 
     function it_deletes_resource_by_id($client, ResponseInterface $response)

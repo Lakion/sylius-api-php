@@ -39,7 +39,7 @@ class Client implements ClientInterface
     }
 
     /**
-     * @param  string     $resource Plural name of the resource
+     * @param  string       $resource Plural name of the resource
      * @return ApiInterface
      */
     public function getApi($resource)

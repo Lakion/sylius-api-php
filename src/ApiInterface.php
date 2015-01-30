@@ -30,11 +30,12 @@ interface ApiInterface
     public function create(array $body, array $files = []);
 
     /**
+     * @param  int   $id    Resource ID
      * @param  array $body  Array of fields to be sent to api
      * @param  array $files Array of files to upload. Key = field key, Value = file path.
      * @return bool
      */
-    public function update(array $body, array $files = []);
+    public function update($id, array $body, array $files = []);
 
     /**
      * @param  string|int $id Resource ID
