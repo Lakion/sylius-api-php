@@ -54,4 +54,9 @@ interface ClientInterface
      * @return ResponseInterface
      */
     public function post($url, $body, array $files = array());
+
+    /**
+     * @return string The scheme and HTTP host
+     */
+    public function getSchemeAndHost();
 }

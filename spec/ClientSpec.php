@@ -16,6 +16,7 @@ use GuzzleHttp\Message\Request;
 use GuzzleHttp\Post\PostBodyInterface;
 use GuzzleHttp\Post\PostFileInterface;
 use PhpSpec\ObjectBehavior;
+use Sylius\Api\Client;
 use Sylius\Api\Factory\PostFileFactoryInterface;
 
 /**
@@ -25,6 +26,7 @@ class ClientSpec extends ObjectBehavior
 {
     function let(HttpClientInterface $httpClient, PostFileFactoryInterface $postFileFactory)
     {
+        $httpClient->getBaseUrl()->willReturn('http://demo.sylius.org/api/');
         $this->beConstructedWith($httpClient, $postFileFactory);
     }
 
@@ -88,5 +90,20 @@ class ClientSpec extends ObjectBehavior
     {
         $httpClient->delete('/uri')->shouldBeCalled();
         $this->delete('/uri');
+    }
+
+    function it_gets_scheme_and_host()
+    {
+        $this->getSchemeAndHost()->shouldReturn('http://demo.sylius.org');
+    }
+
+    function it_creates_client_from_url()
+    {
+        $this::createFromUrl('http://demo.sylius.org/api/')->shouldReturnAnInstanceOf('Sylius\Api\ClientInterface');
+    }
+
+    function it_creates_client_from_url_with_scheme_and_host()
+    {
+        $this::createFromUrl('http://demo.sylius.org/api/')->getSchemeAndHost()->shouldReturn('http://demo.sylius.org');
     }
 }

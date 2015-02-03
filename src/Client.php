@@ -13,6 +13,7 @@ namespace Sylius\Api;
 
 use GuzzleHttp\ClientInterface as HttpClientInterface;
 use GuzzleHttp\Post\PostBodyInterface;
+use GuzzleHttp\Url;
 use Sylius\Api\Factory\PostFileFactory;
 use Sylius\Api\Factory\PostFileFactoryInterface;
 
@@ -23,6 +24,10 @@ use Sylius\Api\Factory\PostFileFactoryInterface;
  */
 class Client implements ClientInterface
 {
+    /**
+     * @var Url $baseUrl
+     */
+    private $baseUrl;
     /**
      * @var HttpClientInterface $httpClient
      */
@@ -36,6 +41,7 @@ class Client implements ClientInterface
     {
         $this->postFileFactory = $postFileFactory ?: new PostFileFactory();
         $this->httpClient = $httpClient;
+        $this->baseUrl = Url::fromString($httpClient->getBaseUrl());
     }
 
     /**
@@ -94,5 +100,27 @@ class Client implements ClientInterface
         $response = $this->httpClient->send($request);
 
         return $response;
+    }
+
+    /**
+     * {@inheritdoc }
+     */
+    public function getSchemeAndHost()
+    {
+        return sprintf('%s://%s', $this->baseUrl->getScheme(), $this->baseUrl->getHost());
+    }
+
+    public static function createFromUrl($url, array $options = [])
+    {
+        $options['base_url'] = $url;
+        self::resolveDefaults($options);
+        $httpClient = new \GuzzleHttp\Client($options);
+        return new self($httpClient);
+    }
+
+    private static function resolveDefaults(array &$options)
+    {
+        $options['defaults']['headers']['User-Agent'] = isset($options['defaults']['headers']['User-Agent']) ? $options['defaults']['headers']['User-Agent'] : 'SyliusApi/0.1';
+        $options['defaults']['headers']['Accept'] = isset($options['defaults']['headers']['Accept']) ? $options['defaults']['headers']['Accept'] : 'application/json';
     }
 }
