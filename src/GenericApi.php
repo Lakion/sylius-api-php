@@ -104,6 +104,9 @@ class GenericApi implements ApiInterface
     private function responseToArray(ResponseInterface $response)
     {
         $responseType = $response->getHeader('Content-Type');
+        if ((false === strpos($responseType, 'application/json')) && (false === strpos($responseType, 'application/xml'))) {
+            throw new InvalidResponseFormatException((string) $response->getBody(), $response->getStatusCode());
+        }
 
         return (strpos($responseType, 'application/json') !== false) ? $response->json() : $response->xml();
     }
