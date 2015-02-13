@@ -14,6 +14,7 @@ namespace Sylius\Api;
 use GuzzleHttp\ClientInterface as HttpClientInterface;
 use GuzzleHttp\Post\PostBodyInterface;
 use GuzzleHttp\Url;
+use Nmrkt\GuzzleOAuth2\OAuth2Subscriber;
 use Sylius\Api\Factory\PostFileFactory;
 use Sylius\Api\Factory\PostFileFactoryInterface;
 
@@ -110,11 +111,14 @@ class Client implements ClientInterface
         return sprintf('%s://%s', $this->baseUrl->getScheme(), $this->baseUrl->getHost());
     }
 
-    public static function createFromUrl($url, array $options = [])
+    public static function createFromUrl($url, array $options = [], OAuth2Subscriber $oauth = null)
     {
         $options['base_url'] = $url;
         self::resolveDefaults($options);
         $httpClient = new \GuzzleHttp\Client($options);
+        if ($oauth) {
+            $httpClient->getEmitter()->attach($oauth);
+        }
         return new self($httpClient);
     }
 
@@ -122,5 +126,6 @@ class Client implements ClientInterface
     {
         $options['defaults']['headers']['User-Agent'] = isset($options['defaults']['headers']['User-Agent']) ? $options['defaults']['headers']['User-Agent'] : 'SyliusApi/0.1';
         $options['defaults']['headers']['Accept'] = isset($options['defaults']['headers']['Accept']) ? $options['defaults']['headers']['Accept'] : 'application/json';
+        $options['defaults']['exceptions'] = isset($options['defaults']['exceptions']) ? $options['defaults']['exceptions'] : false;
     }
 }

@@ -5,8 +5,15 @@
     "require": {
         "php": ">=5.4.0",
         "guzzlehttp/guzzle": "~5.2",
+        "nmrkt/guzzle5-oauth2-subscriber": "dev-master",
         "symfony/serializer": "~2.7.@dev"
     },
+    "repositories": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/michalmarcinkowski/guzzle5-oauth2-subscriber"
+        }
+    ],
     "require-dev": {
         "phpspec/phpspec": "~2.1@dev"
     },
