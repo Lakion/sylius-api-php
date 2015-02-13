@@ -23,6 +23,13 @@ interface ApiInterface
     public function get($id);
 
     /**
+     * @param int $page
+     * @param int $limit
+     * @return array
+     */
+    public function getPaginated($page = 1, $limit = 10);
+
+    /**
      * @param  array $body  Array of fields to be sent to api
      * @param  array $files Array of files to upload. Key = field key, Value = file path.
      * @return array

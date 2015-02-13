@@ -74,6 +74,16 @@ class GenericApi implements ApiInterface
     /**
      * {@inheritdoc }
      */
+    public function getPaginated($page = 1, $limit = 10)
+    {
+        $response = $this->client->get(sprintf('%s?page=%d&limit=%d', $this->getUri(), $page, $limit));
+
+        return $this->responseToArray($response);
+    }
+
+    /**
+     * {@inheritdoc }
+     */
     public function create(array $body, array $files = [])
     {
         $response = $this->client->post($this->getUri(), $body, $files);
