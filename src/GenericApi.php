@@ -12,6 +12,10 @@
 namespace Sylius\Api;
 
 use GuzzleHttp\Message\ResponseInterface;
+use Sylius\Api\Factory\ApiAdapterFactory;
+use Sylius\Api\Factory\AdapterFactoryInterface;
+use Sylius\Api\Factory\PaginatorFactory;
+use Sylius\Api\Factory\PaginatorFactoryInterface;
 
 /**
  * @author Michał Marcinkowski <michal.marcinkowski@lakion.com>
@@ -26,16 +30,29 @@ class GenericApi implements ApiInterface
      * @var string $uri
      */
     private $uri;
+    /**
+     * @var PaginatorFactoryInterface $paginatorFactory
+     */
+    private $paginatorFactory;
 
     /**
-     * @param  ClientInterface           $client
-     * @param  string                    $uri
+     * @var AdapterFactoryInterface $apiAdapterFactory
+     */
+    private $apiAdapterFactory;
+
+    /**
+     * @param  ClientInterface            $client
+     * @param  string                     $uri
+     * @param  AdapterFactoryInterface $apiAdapterFactory
+     * @param  PaginatorFactoryInterface  $paginatorFactory
      * @throws \InvalidArgumentException
      */
-    public function __construct(ClientInterface $client, $uri)
+    public function __construct(ClientInterface $client, $uri, AdapterFactoryInterface $apiAdapterFactory = null, PaginatorFactoryInterface $paginatorFactory = null)
     {
         $this->setUri($uri);
         $this->client = $client;
+        $this->apiAdapterFactory = $apiAdapterFactory ?: new ApiAdapterFactory($this);
+        $this->paginatorFactory = $paginatorFactory ?: new PaginatorFactory();
     }
 
     /**
@@ -56,7 +73,7 @@ class GenericApi implements ApiInterface
     /**
      * @return string
      */
-    public function getUri()
+    private function getUri()
     {
         return $this->uri;
     }
@@ -74,11 +91,34 @@ class GenericApi implements ApiInterface
     /**
      * {@inheritdoc }
      */
+    public function getAll()
+    {
+        $paginator = $this->createPaginator(100);
+        $results = $paginator->getCurrentPageResults();
+        while($paginator->hasNextPage()) {
+            $paginator->nextPage();
+            $results = array_merge($results, $paginator->getCurrentPageResults());
+        }
+
+        return $results;
+    }
+
+    /**
+     * {@inheritdoc }
+     */
     public function getPaginated($page = 1, $limit = 10)
     {
         $response = $this->client->get(sprintf('%s?page=%d&limit=%d', $this->getUri(), $page, $limit));
 
         return $this->responseToArray($response);
+    }
+
+    /**
+     * {@inheritdoc }
+     */
+    public function createPaginator($limit = 10)
+    {
+        return $this->paginatorFactory->create($this->apiAdapterFactory->create(), $limit);
     }
 
     /**

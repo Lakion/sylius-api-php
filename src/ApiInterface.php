@@ -23,11 +23,22 @@ interface ApiInterface
     public function get($id);
 
     /**
-     * @param int $page
-     * @param int $limit
+     * @return array
+     */
+    public function getAll();
+
+    /**
+     * @param  int $page
+     * @param  int $limit
      * @return array
      */
     public function getPaginated($page = 1, $limit = 10);
+
+    /**
+     * @param  int $limit
+     * @return PaginatorInterface
+     */
+    public function createPaginator($limit);
 
     /**
      * @param  array $body  Array of fields to be sent to api

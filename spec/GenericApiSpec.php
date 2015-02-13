@@ -13,16 +13,22 @@ namespace spec\Sylius\Api;
 
 use GuzzleHttp\Message\ResponseInterface;
 use PhpSpec\ObjectBehavior;
+use Prophecy\Argument;
+use Sylius\Api\AdapterInterface;
 use Sylius\Api\ClientInterface;
+use Sylius\Api\Factory\AdapterFactoryInterface;
+use Sylius\Api\Factory\PaginatorFactoryInterface;
+use Sylius\Api\PaginatorInterface;
 
 /**
  * @author Michał Marcinkowski <michal.marcinkowski@lakion.com>
  */
 class GenericApiSpec extends ObjectBehavior
 {
-    function let(ClientInterface $client)
+    function let(ClientInterface $client, AdapterFactoryInterface $adapterFactory, PaginatorFactoryInterface $paginatorFactory, AdapterInterface $adapter)
     {
-        $this->beConstructedWith($client, 'uri');
+        $adapterFactory->create()->willReturn($adapter);
+        $this->beConstructedWith($client, 'uri', $adapterFactory, $paginatorFactory);
     }
 
     function it_validates_that_uri_is_given($client)
@@ -64,7 +70,6 @@ class GenericApiSpec extends ObjectBehavior
 
         $this->getPaginated()->shouldReturn(['a', 'b', 'c']);
     }
-
 
     function it_gets_paginated_resources_by_page($client, ResponseInterface $response)
     {
@@ -135,5 +140,26 @@ class GenericApiSpec extends ObjectBehavior
         $client->delete('uri/1')->willReturn($response);
         $client->delete('uri/1')->shouldBeCalled();
         $this->delete(1)->shouldReturn(false);
+    }
+
+    function it_gets_all_resources($adapter, $paginatorFactory, PaginatorInterface $paginator)
+    {
+        $paginatorFactory->create($adapter, 100)->willReturn($paginator);
+        $paginatorFactory->create($adapter, 100)->shouldBeCalled();
+        $paginator->getCurrentPageResults()->willReturn(['a', 'b', 'c']);
+        $paginator->hasNextPage()->willReturn(false);
+        $this->getAll()->shouldReturn(['a', 'b', 'c']);
+    }
+
+    function it_creates_paginator_with_defined_limit($adapter, $paginatorFactory, PaginatorInterface $paginator)
+    {
+        $paginatorFactory->create($adapter, 15)->willReturn($paginator);
+        $this->createPaginator(15)->shouldReturn($paginator);
+    }
+
+    function it_creates_paginator_with_default_limit($adapter, $paginatorFactory)
+    {
+        $paginatorFactory->create($adapter, 10)->shouldBeCalled();
+        $this->createPaginator();
     }
 }
