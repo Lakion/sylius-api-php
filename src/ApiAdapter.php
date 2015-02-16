@@ -9,7 +9,7 @@ class ApiAdapter implements AdapterInterface
      */
     private $api;
 
-    function __construct(ApiInterface $api)
+    public function __construct(ApiInterface $api)
     {
         $this->api = $api;
     }

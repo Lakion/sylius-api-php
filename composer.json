@@ -5,8 +5,7 @@
     "require": {
         "php": ">=5.4.0",
         "guzzlehttp/guzzle": "~5.2",
-        "nmrkt/guzzle5-oauth2-subscriber": "dev-master",
-        "symfony/serializer": "~2.7.@dev"
+        "nmrkt/guzzle5-oauth2-subscriber": "dev-master"
     },
     "repositories": [
         {

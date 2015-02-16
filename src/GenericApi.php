@@ -64,7 +64,7 @@ class GenericApi implements ApiInterface
         if (empty($uri) || !is_string($uri)) {
             throw new \InvalidArgumentException('You must specify uri for Api');
         }
-        if (($uri[strlen($uri) - 1]) != '/') {
+        if (($uri[strlen($uri) - 1]) !== '/') {
             $uri = sprintf('%s/', $uri);
         }
         $this->uri = strtolower($uri);
