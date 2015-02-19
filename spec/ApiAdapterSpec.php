@@ -36,11 +36,11 @@ class ApiAdapterSpec extends ObjectBehavior
 
     function it_gets_number_of_results($api)
     {
-        $api->getPaginated()->willReturn(
+        $api->getPaginated(1, 1, [])->willReturn(
             array(
                 'page' => 1,
-                'limit' => 10,
-                'pages' => 1,
+                'limit' => 1,
+                'pages' => 3,
                 'total' => 3,
                 '_embedded' =>
                     array(
@@ -51,18 +51,6 @@ class ApiAdapterSpec extends ObjectBehavior
                                         'id' => 1,
                                         'email' => 'chelsie.witting@example.com',
                                         'username' => 'chelsie.witting@example.com',
-                                    ),
-                                1 =>
-                                    array(
-                                        'id' => 2,
-                                        'email' => 'chelsie.witting1@example.com',
-                                        'username' => 'chelsie.witting1@example.com',
-                                    ),
-                                2 =>
-                                    array(
-                                        'id' => 3,
-                                        'email' => 'chelsie.witting2@example.com',
-                                        'username' => 'chelsie.witting2@example.com',
                                     ),
                             ),
                     ),
@@ -71,9 +59,34 @@ class ApiAdapterSpec extends ObjectBehavior
         $this->getNumberOfResults()->shouldReturn(3);
     }
 
+    function it_gets_number_of_results_for_a_specific_uri_parameters($api)
+    {
+        $api->getPaginated(1, 1, ['parentId' => 1])->willReturn(
+            array(
+                'page' => 1,
+                'limit' => 1,
+                'pages' => 3,
+                'total' => 3,
+                '_embedded' =>
+                    array(
+                        'items' =>
+                            array (
+                                0 =>
+                                    array(
+                                        'id' => 1,
+                                        'email' => 'chelsie.witting@example.com',
+                                        'username' => 'chelsie.witting@example.com',
+                                    ),
+                            ),
+                    ),
+            )
+        );
+        $this->getNumberOfResults(['parentId' => 1])->shouldReturn(3);
+    }
+
     function it_gets_results($api)
     {
-        $api->getPaginated(1, 10)->willReturn(
+        $api->getPaginated(1, 10, [])->willReturn(
             array(
                 'page' => 1,
                 'limit' => 10,
@@ -105,7 +118,62 @@ class ApiAdapterSpec extends ObjectBehavior
                     ),
             )
         );
-        $this->getResults(1, 10)->shouldReturn(
+        $this->getResults(1, 10, [])->shouldReturn(
+            array (
+                    array(
+                        'id' => 1,
+                        'email' => 'chelsie.witting@example.com',
+                        'username' => 'chelsie.witting@example.com',
+                    ),
+                    array(
+                        'id' => 2,
+                        'email' => 'chelsie.witting1@example.com',
+                        'username' => 'chelsie.witting1@example.com',
+                    ),
+                    array(
+                        'id' => 3,
+                        'email' => 'chelsie.witting2@example.com',
+                        'username' => 'chelsie.witting2@example.com',
+                    ),
+            )
+        );
+    }
+
+    function it_gets_results_for_a_specific_uri_parameters($api)
+    {
+        $api->getPaginated(1, 10, ['parentId' => 1])->willReturn(
+            array(
+                'page' => 1,
+                'limit' => 10,
+                'pages' => 1,
+                'total' => 3,
+                '_embedded' =>
+                    array(
+                        'items' =>
+                            array (
+                                0 =>
+                                    array(
+                                        'id' => 1,
+                                        'email' => 'chelsie.witting@example.com',
+                                        'username' => 'chelsie.witting@example.com',
+                                    ),
+                                1 =>
+                                    array(
+                                        'id' => 2,
+                                        'email' => 'chelsie.witting1@example.com',
+                                        'username' => 'chelsie.witting1@example.com',
+                                    ),
+                                2 =>
+                                    array(
+                                        'id' => 3,
+                                        'email' => 'chelsie.witting2@example.com',
+                                        'username' => 'chelsie.witting2@example.com',
+                                    ),
+                            ),
+                    ),
+            )
+        );
+        $this->getResults(1, 10, ['parentId' => 1])->shouldReturn(
             array (
                     array(
                         'id' => 1,

@@ -23,30 +23,36 @@ class Paginator implements PaginatorInterface
     /**
      * @var array
      */
-    private $currentResults = null;
+    private $currentResults;
     /**
      * @var int
      */
     private $numberOfResults = -1;
+    /**
+     * @var array $uriParameters
+     */
+    private $uriParameters;
 
     /**
      * @param AdapterInterface $adapter
      * @param int $limitPerPage
+     * @param array $uriParameters
      */
-    public function __construct(AdapterInterface $adapter, $limitPerPage = 10)
+    public function __construct(AdapterInterface $adapter, $limitPerPage = 10, array $uriParameters = [])
     {
         if (!is_int($limitPerPage)) {
             throw new \InvalidArgumentException('Page limit must be integer!');
         }
         $this->adapter = $adapter;
         $this->limitPerPage = $limitPerPage;
+        $this->uriParameters = $uriParameters;
         $this->lastPage = (int) ceil($this->getNumberOfResults() / $this->limitPerPage);
     }
 
     public function getCurrentPageResults()
     {
         if (!$this->isResultCached()) {
-            $this->currentResults = $this->adapter->getResults($this->currentPage, $this->limitPerPage);
+            $this->currentResults = $this->adapter->getResults($this->currentPage, $this->limitPerPage, $this->uriParameters);
         }
         return $this->currentResults;
     }
@@ -87,7 +93,7 @@ class Paginator implements PaginatorInterface
     public function getNumberOfResults()
     {
         if (-1 === $this->numberOfResults) {
-            $this->numberOfResults = $this->adapter->getNumberOfResults();
+            $this->numberOfResults = $this->adapter->getNumberOfResults($this->uriParameters);
         }
         return $this->numberOfResults;
     }

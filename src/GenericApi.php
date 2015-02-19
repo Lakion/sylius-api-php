@@ -96,9 +96,9 @@ class GenericApi implements ApiInterface
     /**
      * {@inheritdoc }
      */
-    public function getAll()
+    public function getAll(array $uriParameters = [])
     {
-        $paginator = $this->createPaginator(100);
+        $paginator = $this->createPaginator(100, $uriParameters);
         $results = $paginator->getCurrentPageResults();
         while($paginator->hasNextPage()) {
             $paginator->nextPage();
@@ -121,9 +121,9 @@ class GenericApi implements ApiInterface
     /**
      * {@inheritdoc }
      */
-    public function createPaginator($limit = 10)
+    public function createPaginator($limit = 10, array $uriParameters = [])
     {
-        return $this->paginatorFactory->create($this->apiAdapterFactory->create(), $limit);
+        return $this->paginatorFactory->create($this->apiAdapterFactory->create(), $limit, $uriParameters);
     }
 
     /**
