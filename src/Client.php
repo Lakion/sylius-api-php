@@ -17,6 +17,7 @@ use GuzzleHttp\Url;
 use Nmrkt\GuzzleOAuth2\OAuth2Subscriber;
 use Sylius\Api\Factory\PostFileFactory;
 use Sylius\Api\Factory\PostFileFactoryInterface;
+use Sylius\Api\Map\UriMapInterface;
 
 /**
  * Sylius API client
@@ -34,14 +35,19 @@ class Client implements ClientInterface
      */
     private $httpClient;
     /**
+     * @var UriMapInterface $uriMap
+     */
+    private $uriMap;
+    /**
      * @var PostFileFactoryInterface $postFileFactory
      */
     private $postFileFactory;
 
-    public function __construct(HttpClientInterface $httpClient, PostFileFactoryInterface $postFileFactory = null)
+    public function __construct(HttpClientInterface $httpClient, UriMapInterface $uriMap, PostFileFactoryInterface $postFileFactory = null)
     {
         $this->postFileFactory = $postFileFactory ?: new PostFileFactory();
         $this->httpClient = $httpClient;
+        $this->uriMap = $uriMap;
         $this->baseUrl = Url::fromString($httpClient->getBaseUrl());
     }
 
@@ -51,7 +57,7 @@ class Client implements ClientInterface
      */
     public function getApi($resource)
     {
-        return new GenericApi($this, $resource);
+        return new GenericApi($this, $this->uriMap->getUri($resource));
     }
 
     /**
@@ -111,7 +117,7 @@ class Client implements ClientInterface
         return sprintf('%s://%s', $this->baseUrl->getScheme(), $this->baseUrl->getHost());
     }
 
-    public static function createFromUrl($url, array $options = [], OAuth2Subscriber $oauth = null)
+    public static function createFromUrl($url, UriMapInterface $uriMap, array $options = [], OAuth2Subscriber $oauth = null)
     {
         $options['base_url'] = $url;
         self::resolveDefaults($options);
@@ -119,7 +125,7 @@ class Client implements ClientInterface
         if ($oauth) {
             $httpClient->getEmitter()->attach($oauth);
         }
-        return new self($httpClient);
+        return new self($httpClient, $uriMap);
     }
 
     private static function resolveDefaults(array &$options)

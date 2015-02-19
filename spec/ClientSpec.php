@@ -18,16 +18,18 @@ use GuzzleHttp\Post\PostFileInterface;
 use PhpSpec\ObjectBehavior;
 use Sylius\Api\Client;
 use Sylius\Api\Factory\PostFileFactoryInterface;
+use Sylius\Api\Map\UriMapInterface;
 
 /**
  * @author Michał Marcinkowski <michal.marcinkowski@lakion.com>
  */
 class ClientSpec extends ObjectBehavior
 {
-    function let(HttpClientInterface $httpClient, PostFileFactoryInterface $postFileFactory)
+    function let(HttpClientInterface $httpClient, UriMapInterface $uriMap, PostFileFactoryInterface $postFileFactory)
     {
         $httpClient->getBaseUrl()->willReturn('http://demo.sylius.org/api/');
-        $this->beConstructedWith($httpClient, $postFileFactory);
+        $uriMap->getUri('products')->willReturn('products');
+        $this->beConstructedWith($httpClient, $uriMap, $postFileFactory);
     }
 
     function it_is_initializable()
@@ -97,13 +99,13 @@ class ClientSpec extends ObjectBehavior
         $this->getSchemeAndHost()->shouldReturn('http://demo.sylius.org');
     }
 
-    function it_creates_client_from_url()
+    function it_creates_client_from_url(UriMapInterface $uriMap)
     {
-        $this::createFromUrl('http://demo.sylius.org/api/')->shouldReturnAnInstanceOf('Sylius\Api\ClientInterface');
+        $this::createFromUrl('http://demo.sylius.org/api/', $uriMap)->shouldReturnAnInstanceOf('Sylius\Api\ClientInterface');
     }
 
-    function it_creates_client_from_url_with_scheme_and_host()
+    function it_creates_client_from_url_with_scheme_and_host(UriMapInterface $uriMap)
     {
-        $this::createFromUrl('http://demo.sylius.org/api/')->getSchemeAndHost()->shouldReturn('http://demo.sylius.org');
+        $this::createFromUrl('http://demo.sylius.org/api/', $uriMap)->getSchemeAndHost()->shouldReturn('http://demo.sylius.org');
     }
 }
