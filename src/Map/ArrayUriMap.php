@@ -49,6 +49,6 @@ class ArrayUriMap implements UriMapInterface
         if ($this->allowDefaultUris) {
             return $resource;
         }
-        throw new \InvalidArgumentException('No mapping defined for given resource.');
+        throw new \InvalidArgumentException('No mapping defined for a given resource.');
     }
 }

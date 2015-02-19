@@ -17,7 +17,7 @@ use Sylius\Api\Paginator;
 /**
  * @author Michał Marcinkowski <michal.marcinkowski@lakion.com>
  */
-class PaginatorFactory
+class PaginatorFactory implements PaginatorFactoryInterface
 {
     /**
      * {@inheritdoc }

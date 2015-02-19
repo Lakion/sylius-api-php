@@ -67,23 +67,28 @@ class GenericApi implements ApiInterface
         if (($uri[strlen($uri) - 1]) !== '/') {
             $uri = sprintf('%s/', $uri);
         }
-        $this->uri = strtolower($uri);
+        $this->uri = $uri;
     }
 
     /**
+     * @param array $uriParameters
      * @return string
      */
-    private function getUri()
+    private function getUri(array $uriParameters = [])
     {
-        return $this->uri;
+        $uri = $this->uri;
+        foreach($uriParameters as $uriParameterKey => $uriParameterValue) {
+            $uri = str_ireplace(sprintf('{%s}', $uriParameterKey), $uriParameterValue, $uri);
+        }
+        return $uri;
     }
 
     /**
      * {@inheritdoc }
      */
-    public function get($id)
+    public function get($id, array $uriParameters = [])
     {
-        $response = $this->client->get(sprintf('%s%s', $this->getUri(), $id));
+        $response = $this->client->get(sprintf('%s%s', $this->getUri($uriParameters), $id));
 
         return $this->responseToArray($response);
     }
@@ -106,9 +111,9 @@ class GenericApi implements ApiInterface
     /**
      * {@inheritdoc }
      */
-    public function getPaginated($page = 1, $limit = 10)
+    public function getPaginated($page = 1, $limit = 10, array $uriParameters = [])
     {
-        $response = $this->client->get(sprintf('%s?page=%d&limit=%d', $this->getUri(), $page, $limit));
+        $response = $this->client->get(sprintf('%s?page=%d&limit=%d', $this->getUri($uriParameters), $page, $limit));
 
         return $this->responseToArray($response);
     }
@@ -124,9 +129,9 @@ class GenericApi implements ApiInterface
     /**
      * {@inheritdoc }
      */
-    public function create(array $body, array $files = [])
+    public function create(array $body, array $uriParameters = [], array $files = [])
     {
-        $response = $this->client->post($this->getUri(), $body, $files);
+        $response = $this->client->post($this->getUri($uriParameters), $body, $files);
 
         return $this->responseToArray($response);
     }
@@ -134,9 +139,14 @@ class GenericApi implements ApiInterface
     /**
      * {@inheritdoc }
      */
-    public function update($id, array $body, array $files = [])
+    public function update($id, array $body, array $uriParameters = [], array $files = [])
     {
-        $response = $this->client->patch(sprintf('%s%s', $this->getUri(), $id), $body);
+        $uri = sprintf('%s%s', $this->getUri($uriParameters), $id);
+        if (empty($files)) {
+            $response = $this->client->patch($uri, $body);
+        } else {
+            $response = $this->client->post($uri, $body, $files);
+        }
 
         return (204 === $response->getStatusCode());
     }
@@ -144,9 +154,9 @@ class GenericApi implements ApiInterface
     /**
      * {@inheritdoc }
      */
-    public function delete($id)
+    public function delete($id, array $uriParameters = [])
     {
-        $response = $this->client->delete(sprintf('%s%s', $this->getUri(), $id));
+        $response = $this->client->delete(sprintf('%s%s', $this->getUri($uriParameters), $id));
 
         return (204 === $response->getStatusCode());
     }

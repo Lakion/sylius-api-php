@@ -24,7 +24,7 @@ class ArrayUriMapSpec extends ObjectBehavior
         $this->beConstructedWith(
             [
                 'product_variants' => 'products/{productId}/products_variants',
-                'taxons' => 'taxonomies/{taxonomyId}/taxons'
+                'taxons'           => 'taxonomies/{taxonomyId}/taxons'
             ]
         );
     }
@@ -75,6 +75,7 @@ class ArrayUriMapSpec extends ObjectBehavior
             ],
             false
         );
+        $this->getUri('taxons')->shouldReturn('taxonomies/{taxonomyId}/taxons');
         $this->shouldThrow('InvalidArgumentException')->during('getUri', ['products']);
     }
 }
