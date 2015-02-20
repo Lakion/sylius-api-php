@@ -16,4 +16,4 @@ namespace Sylius\Api;
  */
 class InvalidResponseFormatException extends \Exception
 {
-} 
+}

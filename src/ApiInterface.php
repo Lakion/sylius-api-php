@@ -58,7 +58,7 @@ interface ApiInterface
      * @param  array $files Array of files to upload. Key = field key, Value = file path.
      * @return bool
      */
-    public function update($id, array $body,, array $uriParameters = [], array $files = []);
+    public function update($id, array $body, array $uriParameters = [], array $files = []);
 
     /**
      * @param  string|int $id Resource ID
