@@ -1,0 +1,6 @@
+machine:
+  php:
+    version: 5.4.4
+test:
+  override:
+    - bin/phpspec run
