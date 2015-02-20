@@ -27,7 +27,7 @@ class ArrayUriMap implements UriMapInterface
 
     /**
      * @param array $uriMapping
-     * @param bool $allowDefaultUris
+     * @param bool  $allowDefaultUris
      */
     public function __construct(array $uriMapping, $allowDefaultUris = true)
     {
@@ -43,7 +43,7 @@ class ArrayUriMap implements UriMapInterface
         if (empty($resource) || !is_string($resource)) {
             throw new \InvalidArgumentException('The resource has to be string and cannot be empty.');
         }
-        if(isset($this->uriMapping[$resource])) {
+        if (isset($this->uriMapping[$resource])) {
             return $this->uriMapping[$resource];
         }
         if ($this->allowDefaultUris) {

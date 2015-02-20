@@ -71,15 +71,16 @@ class GenericApi implements ApiInterface
     }
 
     /**
-     * @param array $uriParameters
+     * @param  array  $uriParameters
      * @return string
      */
     private function getUri(array $uriParameters = [])
     {
         $uri = $this->uri;
-        foreach($uriParameters as $uriParameterKey => $uriParameterValue) {
+        foreach ($uriParameters as $uriParameterKey => $uriParameterValue) {
             $uri = str_ireplace(sprintf('{%s}', $uriParameterKey), $uriParameterValue, $uri);
         }
+
         return $uri;
     }
 
@@ -100,7 +101,7 @@ class GenericApi implements ApiInterface
     {
         $paginator = $this->createPaginator(100, $uriParameters);
         $results = $paginator->getCurrentPageResults();
-        while($paginator->hasNextPage()) {
+        while ($paginator->hasNextPage()) {
             $paginator->nextPage();
             $results = array_merge($results, $paginator->getCurrentPageResults());
         }

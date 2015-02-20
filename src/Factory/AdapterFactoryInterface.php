@@ -12,8 +12,6 @@
 namespace Sylius\Api\Factory;
 
 use Sylius\Api\AdapterInterface;
-use Sylius\Api\ApiInterface;
-use Sylius\Api\PaginatorInterface;
 
 /**
  * @author Michał Marcinkowski <michal.marcinkowski@lakion.com>

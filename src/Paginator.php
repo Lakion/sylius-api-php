@@ -35,8 +35,8 @@ class Paginator implements PaginatorInterface
 
     /**
      * @param AdapterInterface $adapter
-     * @param int $limitPerPage
-     * @param array $uriParameters
+     * @param int              $limitPerPage
+     * @param array            $uriParameters
      */
     public function __construct(AdapterInterface $adapter, $limitPerPage = 10, array $uriParameters = [])
     {
@@ -54,6 +54,7 @@ class Paginator implements PaginatorInterface
         if (!$this->isResultCached()) {
             $this->currentResults = $this->adapter->getResults($this->currentPage, $this->limitPerPage, $this->uriParameters);
         }
+
         return $this->currentResults;
     }
 
@@ -95,6 +96,7 @@ class Paginator implements PaginatorInterface
         if (-1 === $this->numberOfResults) {
             $this->numberOfResults = $this->adapter->getNumberOfResults($this->uriParameters);
         }
+
         return $this->numberOfResults;
     }
 

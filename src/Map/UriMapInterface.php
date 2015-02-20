@@ -18,7 +18,7 @@ namespace Sylius\Api\Map;
 interface UriMapInterface
 {
     /**
-     * @param string $resource
+     * @param  string $resource
      * @return string Uri for given resource
      */
     public function getUri($resource);
