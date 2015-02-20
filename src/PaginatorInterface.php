@@ -33,6 +33,7 @@ interface PaginatorInterface
 
     /**
      * Moves to the next page
+     * @return void
      */
     public function nextPage();
 
@@ -43,6 +44,7 @@ interface PaginatorInterface
 
     /**
      * Moves to the previous page
+     * @return void
      */
     public function previousPage();
 

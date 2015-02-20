@@ -41,10 +41,10 @@ class GenericApi implements ApiInterface
     private $apiAdapterFactory;
 
     /**
-     * @param  ClientInterface            $client
-     * @param  string                     $uri
-     * @param  AdapterFactoryInterface $apiAdapterFactory
-     * @param  PaginatorFactoryInterface  $paginatorFactory
+     * @param  ClientInterface                $client
+     * @param  string                         $uri
+     * @param  null|AdapterFactoryInterface   $apiAdapterFactory
+     * @param  null|PaginatorFactoryInterface $paginatorFactory
      * @throws \InvalidArgumentException
      */
     public function __construct(ClientInterface $client, $uri, AdapterFactoryInterface $apiAdapterFactory = null, PaginatorFactoryInterface $paginatorFactory = null)
