@@ -125,6 +125,7 @@ class Client implements ClientInterface
         if ($oauth) {
             $httpClient->getEmitter()->attach($oauth);
         }
+
         return new self($httpClient, $uriMap);
     }
 

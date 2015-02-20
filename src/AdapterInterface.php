@@ -17,15 +17,15 @@ namespace Sylius\Api;
 interface AdapterInterface
 {
     /**
-     * @param array $uriParameters
+     * @param  array $uriParameters
      * @return int
      */
     public function getNumberOfResults(array $uriParameters = []);
 
     /**
-     * @param int    $page
-     * @param int    $limit
-     * @param array  $uriParameters
+     * @param  int   $page
+     * @param  int   $limit
+     * @param  array $uriParameters
      * @return array
      */
     public function getResults($page, $limit, array $uriParameters = []);
