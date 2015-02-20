@@ -1,6 +1,6 @@
 Sylius API PHP client library
 ==============
-[![Build status...](https://img.shields.io/circleci/project/Lakion/sylius-api-php.svg)](https://circleci.com/gh/Lakion/sylius-api-php)
+[![Build status...](https://img.shields.io/circleci/project/Lakion/sylius-api-php.svg)](https://circleci.com/gh/Lakion/sylius-api-php) [![Code Quality](https://img.shields.io/scrutinizer/g/Lakion/sylius-api-php.svg)](https://scrutinizer-ci.com/g/Lakion/sylius-api-php/)
 
 PHP client for RESTful Sylius API!
 
