@@ -12,9 +12,9 @@
 namespace Sylius\Api;
 
 use GuzzleHttp\ClientInterface as HttpClientInterface;
+use GuzzleHttp\Event\SubscriberInterface;
 use GuzzleHttp\Post\PostBodyInterface;
 use GuzzleHttp\Url;
-use Nmrkt\GuzzleOAuth2\OAuth2Subscriber;
 use Sylius\Api\Factory\PostFileFactory;
 use Sylius\Api\Factory\PostFileFactoryInterface;
 use Sylius\Api\Map\UriMapInterface;
@@ -117,13 +117,20 @@ class Client implements ClientInterface
         return sprintf('%s://%s', $this->baseUrl->getScheme(), $this->baseUrl->getHost());
     }
 
-    public static function createFromUrl($url, UriMapInterface $uriMap, array $options = [], OAuth2Subscriber $oauth = null)
+    /**
+     * @param  string              $url
+     * @param  UriMapInterface     $uriMap
+     * @param  SubscriberInterface $subscriber
+     * @param  array               $options
+     * @return Client
+     */
+    public static function createFromUrl($url, UriMapInterface $uriMap, SubscriberInterface $subscriber = null, array $options = [])
     {
         $options['base_url'] = $url;
         self::resolveDefaults($options);
         $httpClient = new \GuzzleHttp\Client($options);
-        if ($oauth) {
-            $httpClient->getEmitter()->attach($oauth);
+        if ($subscriber) {
+            $httpClient->getEmitter()->attach($subscriber);
         }
 
         return new self($httpClient, $uriMap);

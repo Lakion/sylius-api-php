@@ -16,7 +16,6 @@ use GuzzleHttp\Message\Request;
 use GuzzleHttp\Post\PostBodyInterface;
 use GuzzleHttp\Post\PostFileInterface;
 use PhpSpec\ObjectBehavior;
-use Sylius\Api\Client;
 use Sylius\Api\Factory\PostFileFactoryInterface;
 use Sylius\Api\Map\UriMapInterface;
 
