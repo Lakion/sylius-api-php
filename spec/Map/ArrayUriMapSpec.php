@@ -12,7 +12,6 @@
 namespace spec\Sylius\Api\Map;
 
 use PhpSpec\ObjectBehavior;
-use Sylius\Api\ApiInterface;
 
 /**
  * @author Michał Marcinkowski <michal.marcinkowski@lakion.com>

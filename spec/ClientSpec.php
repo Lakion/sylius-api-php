@@ -16,20 +16,20 @@ use GuzzleHttp\Message\Request;
 use GuzzleHttp\Post\PostBodyInterface;
 use GuzzleHttp\Post\PostFileInterface;
 use PhpSpec\ObjectBehavior;
-use Sylius\Api\Client;
+use Sylius\Api\ApiInterface;
+use Sylius\Api\ApiResolverInterface;
 use Sylius\Api\Factory\PostFileFactoryInterface;
-use Sylius\Api\Map\UriMapInterface;
 
 /**
  * @author Michał Marcinkowski <michal.marcinkowski@lakion.com>
  */
 class ClientSpec extends ObjectBehavior
 {
-    function let(HttpClientInterface $httpClient, UriMapInterface $uriMap, PostFileFactoryInterface $postFileFactory)
+    function let(HttpClientInterface $httpClient, ApiResolverInterface $apiResolver, PostFileFactoryInterface $postFileFactory, ApiInterface $api)
     {
         $httpClient->getBaseUrl()->willReturn('http://demo.sylius.org/api/');
-        $uriMap->getUri('products')->willReturn('products');
-        $this->beConstructedWith($httpClient, $uriMap, $postFileFactory);
+        $this->beConstructedWith($httpClient, $apiResolver, $postFileFactory);
+        $apiResolver->resolve($this->getWrappedObject(), 'products')->willReturn($api);
     }
 
     function it_is_initializable()
@@ -99,13 +99,13 @@ class ClientSpec extends ObjectBehavior
         $this->getSchemeAndHost()->shouldReturn('http://demo.sylius.org');
     }
 
-    function it_creates_client_from_url(UriMapInterface $uriMap)
+    function it_creates_client_from_url(ApiResolverInterface $apiResolver)
     {
-        $this::createFromUrl('http://demo.sylius.org/api/', $uriMap)->shouldReturnAnInstanceOf('Sylius\Api\ClientInterface');
+        $this::createFromUrl('http://demo.sylius.org/api/', $apiResolver)->shouldReturnAnInstanceOf('Sylius\Api\ClientInterface');
     }
 
-    function it_creates_client_from_url_with_scheme_and_host(UriMapInterface $uriMap)
+    function it_creates_client_from_url_with_scheme_and_host(ApiResolverInterface $apiResolver)
     {
-        $this::createFromUrl('http://demo.sylius.org/api/', $uriMap)->getSchemeAndHost()->shouldReturn('http://demo.sylius.org');
+        $this::createFromUrl('http://demo.sylius.org/api/', $apiResolver)->getSchemeAndHost()->shouldReturn('http://demo.sylius.org');
     }
 }

@@ -13,7 +13,6 @@ namespace spec\Sylius\Api;
 
 use GuzzleHttp\Message\ResponseInterface;
 use PhpSpec\ObjectBehavior;
-use Prophecy\Argument;
 use Sylius\Api\AdapterInterface;
 use Sylius\Api\ClientInterface;
 use Sylius\Api\Factory\AdapterFactoryInterface;
