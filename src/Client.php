@@ -17,7 +17,6 @@ use GuzzleHttp\Post\PostBodyInterface;
 use GuzzleHttp\Url;
 use Sylius\Api\Factory\PostFileFactory;
 use Sylius\Api\Factory\PostFileFactoryInterface;
-use Sylius\Api\Map\UriMapInterface;
 
 /**
  * Sylius API client
@@ -35,19 +34,19 @@ class Client implements ClientInterface
      */
     private $httpClient;
     /**
-     * @var UriMapInterface $uriMap
+     * @var ApiResolverInterface $apiResolver
      */
-    private $uriMap;
+    private $apiResolver;
     /**
      * @var PostFileFactoryInterface $postFileFactory
      */
     private $postFileFactory;
 
-    public function __construct(HttpClientInterface $httpClient, UriMapInterface $uriMap, PostFileFactoryInterface $postFileFactory = null)
+    public function __construct(HttpClientInterface $httpClient, ApiResolverInterface $apiResolver, PostFileFactoryInterface $postFileFactory = null)
     {
         $this->postFileFactory = $postFileFactory ?: new PostFileFactory();
         $this->httpClient = $httpClient;
-        $this->uriMap = $uriMap;
+        $this->apiResolver = $apiResolver;
         $this->baseUrl = Url::fromString($httpClient->getBaseUrl());
     }
 
@@ -57,7 +56,7 @@ class Client implements ClientInterface
      */
     public function getApi($resource)
     {
-        return new GenericApi($this, $this->uriMap->getUri($resource));
+        return $this->apiResolver->resolve($this, $resource);
     }
 
     /**
@@ -118,13 +117,13 @@ class Client implements ClientInterface
     }
 
     /**
-     * @param  string              $url
-     * @param  UriMapInterface     $uriMap
-     * @param  SubscriberInterface $subscriber
-     * @param  array               $options
+     * @param  string                   $url
+     * @param  ApiResolverInterface     $apiResolver
+     * @param  null|SubscriberInterface $subscriber
+     * @param  array                    $options
      * @return Client
      */
-    public static function createFromUrl($url, UriMapInterface $uriMap, SubscriberInterface $subscriber = null, array $options = [])
+    public static function createFromUrl($url, ApiResolverInterface $apiResolver, SubscriberInterface $subscriber = null, array $options = [])
     {
         $options['base_url'] = $url;
         self::resolveDefaults($options);
@@ -133,7 +132,7 @@ class Client implements ClientInterface
             $httpClient->getEmitter()->attach($subscriber);
         }
 
-        return new self($httpClient, $uriMap);
+        return new self($httpClient, $apiResolver);
     }
 
     private static function resolveDefaults(array &$options)
