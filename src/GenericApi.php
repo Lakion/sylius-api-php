@@ -114,7 +114,12 @@ class GenericApi implements ApiInterface
      */
     public function getPaginated($page = 1, $limit = 10, array $uriParameters = [])
     {
-        $response = $this->client->get(sprintf('%s?page=%d&limit=%d', $this->getUri($uriParameters), $page, $limit));
+        $response = $this->client->get($this->getUri($uriParameters), [
+            'query' => [
+                'page'  => $page,
+                'limit' => $limit
+            ]
+        ]);
 
         return $this->responseToArray($response);
     }

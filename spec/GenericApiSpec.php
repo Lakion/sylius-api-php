@@ -96,8 +96,18 @@ class GenericApiSpec extends ObjectBehavior
     {
         $response->getHeader('Content-Type')->willReturn('application/json');
         $response->json()->willReturn(['a', 'b', 'c']);
-        $client->get('uri/?page=1&limit=10')->willReturn($response);
-        $client->get('uri/?page=1&limit=10')->shouldBeCalled();
+        $client->get('uri/', [
+            'query' => [
+                'page'  => 1,
+                'limit' => 10
+            ]
+        ])->willReturn($response);
+        $client->get('uri/', [
+            'query' => [
+                'page'  => 1,
+                'limit' => 10
+            ]
+        ])->shouldBeCalled();
 
         $this->getPaginated()->shouldReturn(['a', 'b', 'c']);
     }
@@ -106,8 +116,18 @@ class GenericApiSpec extends ObjectBehavior
     {
         $response->getHeader('Content-Type')->willReturn('application/json');
         $response->json()->willReturn(['a', 'b', 'c']);
-        $client->get('uri/?page=3&limit=10')->willReturn($response);
-        $client->get('uri/?page=3&limit=10')->shouldBeCalled();
+        $client->get('uri/', [
+            'query' => [
+                'page'  => 3,
+                'limit' => 10
+            ]
+        ])->willReturn($response);
+        $client->get('uri/', [
+            'query' => [
+                'page'  => 3,
+                'limit' => 10
+            ]
+        ])->shouldBeCalled();
 
         $this->getPaginated(3)->shouldReturn(['a', 'b', 'c']);
     }
@@ -116,8 +136,18 @@ class GenericApiSpec extends ObjectBehavior
     {
         $response->getHeader('Content-Type')->willReturn('application/json');
         $response->json()->willReturn(['a', 'b', 'c']);
-        $client->get('uri/?page=2&limit=15')->willReturn($response);
-        $client->get('uri/?page=2&limit=15')->shouldBeCalled();
+        $client->get('uri/', [
+            'query' => [
+                'page'  => 2,
+                'limit' => 15
+            ]
+        ])->willReturn($response);
+        $client->get('uri/', [
+            'query' => [
+                'page'  => 2,
+                'limit' => 15
+            ]
+        ])->shouldBeCalled();
 
         $this->getPaginated(2, 15)->shouldReturn(['a', 'b', 'c']);
     }
@@ -127,8 +157,18 @@ class GenericApiSpec extends ObjectBehavior
         $this->beConstructedWith($client, 'parentUri/{parentId}/uri', $adapterFactory, $paginatorFactory);
         $response->getHeader('Content-Type')->willReturn('application/json');
         $response->json()->willReturn(['a', 'b', 'c']);
-        $client->get('parentUri/1/uri/?page=2&limit=15')->willReturn($response);
-        $client->get('parentUri/1/uri/?page=2&limit=15')->shouldBeCalled();
+        $client->get('parentUri/1/uri/', [
+            'query' => [
+                'page'  => 2,
+                'limit' => 15
+            ]
+        ])->willReturn($response);
+        $client->get('parentUri/1/uri/', [
+            'query' => [
+                'page'  => 2,
+                'limit' => 15
+            ]
+        ])->shouldBeCalled();
 
         $this->getPaginated(2, 15, ['parentId' => 1])->shouldReturn(['a', 'b', 'c']);
     }
