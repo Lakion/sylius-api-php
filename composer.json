@@ -25,7 +25,6 @@
             "email": "michal.marcinkowski@lakion.com"
         }
     ],
-    "minimum-stability": "dev",
     "autoload": {
         "psr-4": { "Sylius\\Api\\": "src/" }
     }
