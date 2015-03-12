@@ -13,6 +13,7 @@ namespace Sylius\Api;
 
 use GuzzleHttp\Message\ResponseInterface;
 use GuzzleHttp\Url;
+use GuzzleHttp\Event\SubscriberInterface;
 
 /**
  * Sylius API client interface
@@ -21,6 +22,12 @@ use GuzzleHttp\Url;
  */
 interface ClientInterface
 {
+    /**
+     * @param  string       $resource Plural name of the resource
+     * @return ApiInterface
+     */
+    public function getApi($resource);
+
     /**
      * @param  string|Url        $url URL or URI template
      * @return ResponseInterface
@@ -59,4 +66,12 @@ interface ClientInterface
      * @return string The scheme and HTTP host
      */
     public function getSchemeAndHost();
+
+    /**
+     * Attach subscriber to httpClient emitter
+     *
+     * @param SubscriberInterface $subscriber
+     */
+     public function attachSubscriber(SubscriberInterface $subscriber);
 }
+
