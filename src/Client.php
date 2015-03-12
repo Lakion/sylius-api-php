@@ -135,11 +135,9 @@ class Client implements ClientInterface
     }
 
     /**
-     * Attach subscriber to httpClient emitter
-     *
-     * @param SubscriberInterface $subscriber
+     * {@inheritdoc }
      */
-    public function attachSubscriber($subscriber)
+    public function attachSubscriber(SubscriberInterface $subscriber)
     {
         $this->httpClient->getEmitter()->attach($subscriber);
     }

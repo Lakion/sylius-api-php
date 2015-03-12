@@ -5,7 +5,7 @@
     "require": {
         "php": ">=5.4.0",
         "guzzlehttp/guzzle": "~5.2",
-        "nmrkt/guzzle5-oauth2-subscriber": "dev-master@dev"
+        "nmrkt/guzzle5-oauth2-subscriber": "dev-master"
     },
     "repositories": [
         {
