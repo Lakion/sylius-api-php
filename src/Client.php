@@ -51,8 +51,7 @@ class Client implements ClientInterface
     }
 
     /**
-     * @param  string       $resource Plural name of the resource
-     * @return ApiInterface
+     * {@inheritdoc }
      */
     public function getApi($resource)
     {
@@ -133,6 +132,16 @@ class Client implements ClientInterface
         }
 
         return new self($httpClient, $apiResolver);
+    }
+
+    /**
+     * Attach subscriber to httpClient emitter
+     *
+     * @param SubscriberInterface $subscriber
+     */
+    public function attachSubscriber($subscriber)
+    {
+        $this->httpClient->getEmitter()->attach($subscriber);
     }
 
     private static function resolveDefaults(array &$options)
