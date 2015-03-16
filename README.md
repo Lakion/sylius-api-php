@@ -41,6 +41,56 @@ $client = \Sylius\Api\Client::createFromUrl('http://demo.sylius.org/api/', $apiR
 
 ```
 
+If you use Symfony2 framework, you can also register some services, initialize Sylius API Client and inject it to other services.
+
+```yml
+
+parameters:
+    app.http_client.sylius.oauth_token.url: 'http://demo.sylius.org/oauth/v2/token'
+    app.sylius_client.id: 1_demo_client
+    app.sylius_client.secret: secret_demo_client
+    app.sylius_client.username: api@example.com
+    app.sylius_client.password: api
+
+services:
+    #Http client that is used to connect with Sylius API
+    app.http_client.sylius:
+        class: GuzzleHttp\Client
+        arguments:
+            - { base_url: %app.http_client.sylius.url% }
+    #Http client that is used to authenticate Sylius API user
+    app.http_client.sylius.oauth_token:
+        class: GuzzleHttp\Client
+        arguments:
+            - { base_url: %app.http_client.sylius.oauth_token.url% }
+    #Password credentials that use http client to authenticate user with given data
+    app.password_credentials.sylius:
+        class: Nmrkt\GuzzleOAuth2\GrantType\PasswordCredentials
+        arguments:
+            - @app.http_client.sylius.oauth_token
+            - { client_id: %app.sylius_client.id%, client_secret: %app.sylius_client.secret%, username: %app.sylius_client.username%, password: %app.sylius_client.password% }
+    #Subscriber used by Sylius API Client to check authentication
+    app.oauth_subscriber.sylius:
+        class: Nmrkt\GuzzleOAuth2\OAuth2Subscriber
+        arguments: [@app.password_credentials.sylius]
+    #Uri map with custom uris
+    app.api_resolver.uri_map.sylius:
+        class: Sylius\Api\Map\ArrayUriMap
+        arguments:
+            - { }
+    #Initialize Api resolver with uri map
+    app.api_resolver.sylius:
+        class: Sylius\Api\ApiResolver
+        arguments: [@app.api_resolver.uri_map.sylius]
+    #Sylius API Client
+    app.api_client.sylius:
+        class: Sylius\Api\Client
+        arguments: [@app.http_client.sylius, @app.api_resolver.sylius]
+        calls:
+            - [attachSubscriber, ["@app.oauth_subscriber.sylius"]]
+
+```
+
 **Get API for resource**
 ```php
 $taxonomiesApi = $client->getApi('taxonomies');
