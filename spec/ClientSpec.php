@@ -25,11 +25,10 @@ use Sylius\Api\Factory\PostFileFactoryInterface;
  */
 class ClientSpec extends ObjectBehavior
 {
-    function let(HttpClientInterface $httpClient, ApiResolverInterface $apiResolver, PostFileFactoryInterface $postFileFactory, ApiInterface $api)
+    function let(HttpClientInterface $httpClient, PostFileFactoryInterface $postFileFactory)
     {
         $httpClient->getBaseUrl()->willReturn('http://demo.sylius.org/api/');
-        $this->beConstructedWith($httpClient, $apiResolver, $postFileFactory);
-        $apiResolver->resolve($this->getWrappedObject(), 'products')->willReturn($api);
+        $this->beConstructedWith($httpClient, $postFileFactory);
     }
 
     function it_is_initializable()
@@ -40,11 +39,6 @@ class ClientSpec extends ObjectBehavior
     function it_implements_client_interface()
     {
         $this->shouldImplement('Sylius\Api\ClientInterface');
-    }
-
-    function it_gets_api_by_resource()
-    {
-        $this->getApi('products')->shouldReturnAnInstanceOf('Sylius\Api\ApiInterface');
     }
 
     function it_sends_get_request_to_the_given_url($httpClient)
@@ -99,13 +93,13 @@ class ClientSpec extends ObjectBehavior
         $this->getSchemeAndHost()->shouldReturn('http://demo.sylius.org');
     }
 
-    function it_creates_client_from_url(ApiResolverInterface $apiResolver)
+    function it_creates_client_from_url()
     {
-        $this::createFromUrl('http://demo.sylius.org/api/', $apiResolver)->shouldReturnAnInstanceOf('Sylius\Api\ClientInterface');
+        $this::createFromUrl('http://demo.sylius.org/api/')->shouldReturnAnInstanceOf('Sylius\Api\ClientInterface');
     }
 
-    function it_creates_client_from_url_with_scheme_and_host(ApiResolverInterface $apiResolver)
+    function it_creates_client_from_url_with_scheme_and_host()
     {
-        $this::createFromUrl('http://demo.sylius.org/api/', $apiResolver)->getSchemeAndHost()->shouldReturn('http://demo.sylius.org');
+        $this::createFromUrl('http://demo.sylius.org/api/')->getSchemeAndHost()->shouldReturn('http://demo.sylius.org');
     }
 }

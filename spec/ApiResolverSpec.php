@@ -21,10 +21,10 @@ use Sylius\Api\Map\UriMapInterface;
  */
 class ApiResolverSpec extends ObjectBehavior
 {
-    function let(UriMapInterface $uriMap)
+    function let(ClientInterface $client, UriMapInterface $uriMap)
     {
         $uriMap->getUri('products')->willReturn('products');
-        $this->beConstructedWith($uriMap);
+        $this->beConstructedWith($client, $uriMap);
     }
 
     function it_is_initializable()
@@ -37,14 +37,14 @@ class ApiResolverSpec extends ObjectBehavior
         $this->shouldImplement('Sylius\Api\ApiResolverInterface');
     }
 
-    function its_resolve_function_should_return_api_interface_instance(ClientInterface $client)
+    function its_resolve_function_should_return_api_interface_instance()
     {
-        $this->resolve($client, 'products')->shouldReturnAnInstanceOf('Sylius\Api\ApiInterface');
+        $this->getApi('products')->shouldReturnAnInstanceOf('Sylius\Api\ApiInterface');
     }
 
-    function it_should_use_uri_map_to_resolve_api(ClientInterface $client, $uriMap)
+    function it_should_use_uri_map_to_resolve_api($uriMap)
     {
         $uriMap->getUri('products')->shouldBeCalled();
-        $this->resolve($client, 'products')->shouldReturnAnInstanceOf('Sylius\Api\ApiInterface');
+        $this->getApi('products')->shouldReturnAnInstanceOf('Sylius\Api\ApiInterface');
     }
 }

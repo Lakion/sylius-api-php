@@ -23,12 +23,6 @@ use GuzzleHttp\Event\SubscriberInterface;
 interface ClientInterface
 {
     /**
-     * @param  string       $resource Plural name of the resource
-     * @return ApiInterface
-     */
-    public function getApi($resource);
-
-    /**
      * @param  string|Url        $url URL or URI template
      * @return ResponseInterface
      */
