@@ -22,8 +22,8 @@ class PaginatorFactory implements PaginatorFactoryInterface
     /**
      * {@inheritdoc }
      */
-    public function create(AdapterInterface $adapter, $limit, array $uriParameters = [])
+    public function create(AdapterInterface $adapter, array $queryParameters, array $uriParameters = [])
     {
-        return new Paginator($adapter, $limit, $uriParameters);
+        return new Paginator($adapter, $queryParameters, $uriParameters);
     }
 }

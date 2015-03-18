@@ -96,8 +96,7 @@ class GenericApiSpec extends ObjectBehavior
     {
         $response->getHeader('Content-Type')->willReturn('application/json');
         $response->json()->willReturn(['a', 'b', 'c']);
-        $client->get('uri/?page=1&limit=10')->willReturn($response);
-        $client->get('uri/?page=1&limit=10')->shouldBeCalled();
+        $client->get('uri/', ['page' => 1, 'limit' => 10])->willReturn($response)->shouldBeCalled();
 
         $this->getPaginated()->shouldReturn(['a', 'b', 'c']);
     }
@@ -106,20 +105,18 @@ class GenericApiSpec extends ObjectBehavior
     {
         $response->getHeader('Content-Type')->willReturn('application/json');
         $response->json()->willReturn(['a', 'b', 'c']);
-        $client->get('uri/?page=3&limit=10')->willReturn($response);
-        $client->get('uri/?page=3&limit=10')->shouldBeCalled();
+        $client->get('uri/', ['page' => 3, 'limit' => 10])->willReturn($response)->shouldBeCalled();
 
-        $this->getPaginated(3)->shouldReturn(['a', 'b', 'c']);
+        $this->getPaginated(['page' => 3])->shouldReturn(['a', 'b', 'c']);
     }
 
     function it_gets_paginated_resources_by_page_with_limit($client, ResponseInterface $response)
     {
         $response->getHeader('Content-Type')->willReturn('application/json');
         $response->json()->willReturn(['a', 'b', 'c']);
-        $client->get('uri/?page=2&limit=15')->willReturn($response);
-        $client->get('uri/?page=2&limit=15')->shouldBeCalled();
+        $client->get('uri/', ['page' => 2, 'limit' => 15])->willReturn($response)->shouldBeCalled();
 
-        $this->getPaginated(2, 15)->shouldReturn(['a', 'b', 'c']);
+        $this->getPaginated(['page' => 2, 'limit' => 15])->shouldReturn(['a', 'b', 'c']);
     }
 
     function it_gets_paginated_resources_by_page_with_limit_for_a_specific_uri_with_uri_parameters($client, $adapterFactory, $paginatorFactory, ResponseInterface $response)
@@ -127,10 +124,9 @@ class GenericApiSpec extends ObjectBehavior
         $this->beConstructedWith($client, 'parentUri/{parentId}/uri', $adapterFactory, $paginatorFactory);
         $response->getHeader('Content-Type')->willReturn('application/json');
         $response->json()->willReturn(['a', 'b', 'c']);
-        $client->get('parentUri/1/uri/?page=2&limit=15')->willReturn($response);
-        $client->get('parentUri/1/uri/?page=2&limit=15')->shouldBeCalled();
+        $client->get('parentUri/1/uri/', ['page' => 2, 'limit' => 15])->willReturn($response)->shouldBeCalled();
 
-        $this->getPaginated(2, 15, ['parentId' => 1])->shouldReturn(['a', 'b', 'c']);
+        $this->getPaginated(['page' => 2, 'limit' => 15], ['parentId' => 1])->shouldReturn(['a', 'b', 'c']);
     }
 
     function it_creates_resource_with_body($client, ResponseInterface $response)
@@ -222,32 +218,39 @@ class GenericApiSpec extends ObjectBehavior
 
     function it_gets_all_resources($adapter, $paginatorFactory, PaginatorInterface $paginator)
     {
-        $paginatorFactory->create($adapter, 100, [])->willReturn($paginator);
-        $paginatorFactory->create($adapter, 100, [])->shouldBeCalled();
+        $paginatorFactory->create($adapter, ['limit' => 100], [])->willReturn($paginator)->shouldBeCalled();
         $paginator->getCurrentPageResults()->willReturn(['a', 'b', 'c']);
         $paginator->hasNextPage()->willReturn(false);
         $this->getAll()->shouldReturn(['a', 'b', 'c']);
     }
 
+    function it_gets_all_resources_with_few_pages($adapter, $paginatorFactory, PaginatorInterface $paginator)
+    {
+        $paginatorFactory->create($adapter, ['limit' => 2], [])->willReturn($paginator)->shouldBeCalled();
+        $paginator->getCurrentPageResults()->willReturn(['a', 'b'], ['c']);
+        $paginator->hasNextPage()->willReturn(true, false);
+        $paginator->nextPage()->shouldBeCalled();
+        $this->getAll(['limit' => 2])->shouldReturn(['a', 'b', 'c']);
+    }
+
     function it_gets_all_resources_for_a_specific_uri_with_uri_parameters($adapter, $client, $adapterFactory, $paginatorFactory, PaginatorInterface $paginator)
     {
         $this->beConstructedWith($client, 'parentUri/{parentId}/uri', $adapterFactory, $paginatorFactory);
-        $paginatorFactory->create($adapter, 100, ['parentId' => 1])->willReturn($paginator);
-        $paginatorFactory->create($adapter, 100, ['parentId' => 1])->shouldBeCalled();
+        $paginatorFactory->create($adapter, ['limit' => 100], ['parentId' => 1])->willReturn($paginator)->shouldBeCalled();
         $paginator->getCurrentPageResults()->willReturn(['a', 'b', 'c']);
         $paginator->hasNextPage()->willReturn(false);
-        $this->getAll(['parentId' => 1])->shouldReturn(['a', 'b', 'c']);
+        $this->getAll([], ['parentId' => 1])->shouldReturn(['a', 'b', 'c']);
     }
 
     function it_creates_paginator_with_defined_limit($adapter, $paginatorFactory, PaginatorInterface $paginator)
     {
-        $paginatorFactory->create($adapter, 15, [])->willReturn($paginator);
-        $this->createPaginator(15)->shouldReturn($paginator);
+        $paginatorFactory->create($adapter, ['limit' => 15], [])->willReturn($paginator);
+        $this->createPaginator(['limit' => 15])->shouldReturn($paginator);
     }
 
     function it_creates_paginator_with_default_limit($adapter, $paginatorFactory)
     {
-        $paginatorFactory->create($adapter, 10, [])->shouldBeCalled();
+        $paginatorFactory->create($adapter, ['limit' => 10], [])->shouldBeCalled();
         $this->createPaginator();
     }
 

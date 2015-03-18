@@ -48,9 +48,9 @@ class Client implements ClientInterface
     /**
      * {@inheritdoc }
      */
-    public function get($url)
+    public function get($url, array $queryParameters = [])
     {
-        return $this->httpClient->get($url);
+        return $this->httpClient->get($url, ['query' => $queryParameters]);
     }
 
     /**

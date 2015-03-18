@@ -24,24 +24,25 @@ interface ApiInterface
     public function get($id, array $uriParameters = []);
 
     /**
-     * @return array
-     */
-    public function getAll(array $uriParameters = []);
-
-    /**
-     * @param  int   $page
-     * @param  int   $limit
+     * @param  array $queryParameters
      * @param  array $uriParameters
      * @return array
      */
-    public function getPaginated($page = 1, $limit = 10, array $uriParameters = []);
+    public function getAll(array $queryParameters = [], array $uriParameters = []);
 
     /**
-     * @param  int                $limit
+     * @param  array $queryParameters
+     * @param  array $uriParameters
+     * @return array
+     */
+    public function getPaginated(array $queryParameters = [], array $uriParameters = []);
+
+    /**
+     * @param  array              $queryParameters
      * @param  array              $uriParameters
      * @return PaginatorInterface
      */
-    public function createPaginator($limit, array $uriParameters = []);
+    public function createPaginator(array $queryParameters = [], array $uriParameters = []);
 
     /**
      * @param  array $body          Array of fields to be sent to api

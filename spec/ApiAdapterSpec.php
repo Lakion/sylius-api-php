@@ -36,7 +36,7 @@ class ApiAdapterSpec extends ObjectBehavior
 
     function it_gets_number_of_results($api)
     {
-        $api->getPaginated(1, 1, [])->willReturn(
+        $api->getPaginated(['page' => 1, 'limit' => 1], [])->willReturn(
             array(
                 'page' => 1,
                 'limit' => 1,
@@ -61,7 +61,7 @@ class ApiAdapterSpec extends ObjectBehavior
 
     function it_gets_number_of_results_for_a_specific_uri_parameters($api)
     {
-        $api->getPaginated(1, 1, ['parentId' => 1])->willReturn(
+        $api->getPaginated(['page' => 1, 'limit' => 1], ['parentId' => 1])->willReturn(
             array(
                 'page' => 1,
                 'limit' => 1,
@@ -86,7 +86,7 @@ class ApiAdapterSpec extends ObjectBehavior
 
     function it_gets_results($api)
     {
-        $api->getPaginated(1, 10, [])->willReturn(
+        $api->getPaginated(['page' => 1, 'limit' => 10], [])->willReturn(
             array(
                 'page' => 1,
                 'limit' => 10,
@@ -118,7 +118,7 @@ class ApiAdapterSpec extends ObjectBehavior
                     ),
             )
         );
-        $this->getResults(1, 10, [])->shouldReturn(
+        $this->getResults(['page' => 1, 'limit' => 10])->shouldReturn(
             array (
                     array(
                         'id' => 1,
@@ -141,7 +141,7 @@ class ApiAdapterSpec extends ObjectBehavior
 
     function it_gets_results_for_a_specific_uri_parameters($api)
     {
-        $api->getPaginated(1, 10, ['parentId' => 1])->willReturn(
+        $api->getPaginated(['page' => 1, 'limit' => 10], ['parentId' => 1])->willReturn(
             array(
                 'page' => 1,
                 'limit' => 10,
@@ -173,7 +173,7 @@ class ApiAdapterSpec extends ObjectBehavior
                     ),
             )
         );
-        $this->getResults(1, 10, ['parentId' => 1])->shouldReturn(
+        $this->getResults(['page' => 1, 'limit' => 10], ['parentId' => 1])->shouldReturn(
             array (
                     array(
                         'id' => 1,

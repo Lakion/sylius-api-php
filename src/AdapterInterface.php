@@ -23,10 +23,9 @@ interface AdapterInterface
     public function getNumberOfResults(array $uriParameters = []);
 
     /**
-     * @param  int   $page
-     * @param  int   $limit
+     * @param  array $queryParameters
      * @param  array $uriParameters
      * @return array
      */
-    public function getResults($page, $limit, array $uriParameters = []);
+    public function getResults(array $queryParameters, array $uriParameters = []);
 }
