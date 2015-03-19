@@ -34,28 +34,15 @@ class Client implements ClientInterface
      */
     private $httpClient;
     /**
-     * @var ApiResolverInterface $apiResolver
-     */
-    private $apiResolver;
-    /**
      * @var PostFileFactoryInterface $postFileFactory
      */
     private $postFileFactory;
 
-    public function __construct(HttpClientInterface $httpClient, ApiResolverInterface $apiResolver, PostFileFactoryInterface $postFileFactory = null)
+    public function __construct(HttpClientInterface $httpClient, PostFileFactoryInterface $postFileFactory = null)
     {
-        $this->postFileFactory = $postFileFactory ?: new PostFileFactory();
         $this->httpClient = $httpClient;
-        $this->apiResolver = $apiResolver;
+        $this->postFileFactory = $postFileFactory ?: new PostFileFactory();
         $this->baseUrl = Url::fromString($httpClient->getBaseUrl());
-    }
-
-    /**
-     * {@inheritdoc }
-     */
-    public function getApi($resource)
-    {
-        return $this->apiResolver->resolve($this, $resource);
     }
 
     /**
@@ -117,12 +104,11 @@ class Client implements ClientInterface
 
     /**
      * @param  string                   $url
-     * @param  ApiResolverInterface     $apiResolver
      * @param  null|SubscriberInterface $subscriber
      * @param  array                    $options
      * @return Client
      */
-    public static function createFromUrl($url, ApiResolverInterface $apiResolver, SubscriberInterface $subscriber = null, array $options = [])
+    public static function createFromUrl($url, SubscriberInterface $subscriber = null, array $options = [])
     {
         $options['base_url'] = $url;
         self::resolveDefaults($options);
@@ -131,7 +117,7 @@ class Client implements ClientInterface
             $httpClient->getEmitter()->attach($subscriber);
         }
 
-        return new self($httpClient, $apiResolver);
+        return new self($httpClient);
     }
 
     /**

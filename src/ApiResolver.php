@@ -22,17 +22,22 @@ class ApiResolver implements ApiResolverInterface
      * @var UriMapInterface
      */
     private $uriMap;
+    /**
+     * @var ClientInterface
+     */
+    private $client;
 
-    public function __construct(UriMapInterface $uriMap)
+    public function __construct(ClientInterface $client, UriMapInterface $uriMap)
     {
+        $this->client = $client;
         $this->uriMap = $uriMap;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function resolve(ClientInterface $client, $resource)
+    public function getApi($resource)
     {
-        return new GenericApi($client, $this->uriMap->getUri($resource));
+        return new GenericApi($this->client, $this->uriMap->getUri($resource));
     }
 }

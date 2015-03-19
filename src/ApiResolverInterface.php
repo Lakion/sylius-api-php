@@ -17,9 +17,8 @@ namespace Sylius\Api;
 interface ApiResolverInterface
 {
     /**
-     * @param  ClientInterface $client
-     * @param  string          $resource
+     * @param  string       $resource Plural name of the resource
      * @return ApiInterface
      */
-    public function resolve(ClientInterface $client, $resource);
+    public function getApi($resource);
 }
