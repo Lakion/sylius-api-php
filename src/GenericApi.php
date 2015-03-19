@@ -97,9 +97,10 @@ class GenericApi implements ApiInterface
     /**
      * {@inheritdoc }
      */
-    public function getAll(array $uriParameters = [])
+    public function getAll(array $queryParameters = [], array $uriParameters = [])
     {
-        $paginator = $this->createPaginator(100, $uriParameters);
+        $queryParameters['limit'] = isset($queryParameters['limit']) ? $queryParameters['limit'] : 100;
+        $paginator = $this->createPaginator($queryParameters, $uriParameters);
         $results = $paginator->getCurrentPageResults();
         while ($paginator->hasNextPage()) {
             $paginator->nextPage();
@@ -112,9 +113,12 @@ class GenericApi implements ApiInterface
     /**
      * {@inheritdoc }
      */
-    public function getPaginated($page = 1, $limit = 10, array $uriParameters = [])
+    public function getPaginated(array $queryParameters = [], array $uriParameters = [])
     {
-        $response = $this->client->get(sprintf('%s?page=%d&limit=%d', $this->getUri($uriParameters), $page, $limit));
+        $queryParameters['page'] = isset($queryParameters['page']) ? $queryParameters['page'] : 1;
+        $queryParameters['limit'] = isset($queryParameters['limit']) ? $queryParameters['limit'] : 10;
+
+        $response = $this->client->get($this->getUri($uriParameters), $queryParameters);
 
         return $this->responseToArray($response);
     }
@@ -122,9 +126,10 @@ class GenericApi implements ApiInterface
     /**
      * {@inheritdoc }
      */
-    public function createPaginator($limit = 10, array $uriParameters = [])
+    public function createPaginator(array $queryParameters = [], array $uriParameters = [])
     {
-        return $this->paginatorFactory->create($this->apiAdapterFactory->create(), $limit, $uriParameters);
+        $queryParameters['limit'] = isset($queryParameters['limit']) ? $queryParameters['limit'] : 10;
+        return $this->paginatorFactory->create($this->apiAdapterFactory->create(), $queryParameters, $uriParameters);
     }
 
     /**

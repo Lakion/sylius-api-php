@@ -24,9 +24,10 @@ interface ClientInterface
 {
     /**
      * @param  string|Url        $url URL or URI template
+     * @param  array             $queryParameters
      * @return ResponseInterface
      */
-    public function get($url);
+    public function get($url, array $queryParameters = []);
 
     /**
      * @param  string|Url        $url  URL or URI template

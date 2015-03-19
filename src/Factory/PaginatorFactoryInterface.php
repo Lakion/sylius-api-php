@@ -21,9 +21,9 @@ interface PaginatorFactoryInterface
 {
     /**
      * @param  AdapterInterface   $adapter
-     * @param  int                $limit
+     * @param  array              $queryParameters
      * @param  array              $uriParameters
      * @return PaginatorInterface
      */
-    public function create(AdapterInterface $adapter, $limit, array $uriParameters = []);
+    public function create(AdapterInterface $adapter, array $queryParameters, array $uriParameters = []);
 }

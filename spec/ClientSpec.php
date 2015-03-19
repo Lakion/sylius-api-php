@@ -43,7 +43,7 @@ class ClientSpec extends ObjectBehavior
 
     function it_sends_get_request_to_the_given_url($httpClient)
     {
-        $httpClient->get('/uri')->shouldBeCalled();
+        $httpClient->get('/uri', ['query' => []])->shouldBeCalled();
         $this->get('/uri');
     }
 

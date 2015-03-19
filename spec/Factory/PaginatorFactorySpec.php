@@ -31,6 +31,6 @@ class PaginatorFactorySpec extends ObjectBehavior
 
     function it_returns_api_adapter_interface(AdapterInterface $adapter)
     {
-        $this->create($adapter, 10)->shouldImplement('Sylius\Api\PaginatorInterface');
+        $this->create($adapter, ['limit' => 10])->shouldImplement('Sylius\Api\PaginatorInterface');
     }
 }

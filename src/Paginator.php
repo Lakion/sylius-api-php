@@ -17,10 +17,6 @@ class Paginator implements PaginatorInterface
      */
     private $lastPage;
     /**
-     * @var int
-     */
-    private $limitPerPage;
-    /**
      * @var array
      */
     private $currentResults;
@@ -29,30 +25,36 @@ class Paginator implements PaginatorInterface
      */
     private $numberOfResults = -1;
     /**
+     * @var array $queryParameters
+     */
+    private $queryParameters;
+    /**
      * @var array $uriParameters
      */
     private $uriParameters;
 
     /**
      * @param AdapterInterface $adapter
-     * @param int              $limitPerPage
+     * @param array            $queryParameters
      * @param array            $uriParameters
      */
-    public function __construct(AdapterInterface $adapter, $limitPerPage = 10, array $uriParameters = [])
+    public function __construct(AdapterInterface $adapter, array $queryParameters = [], array $uriParameters = [])
     {
-        if (!is_int($limitPerPage)) {
-            throw new \InvalidArgumentException('Page limit must be integer!');
+        $queryParameters['limit'] = isset($queryParameters['limit']) ? $queryParameters['limit'] : 10;
+        if (!is_int($queryParameters['limit'])) {
+            throw new \InvalidArgumentException('Page limit must an integer!');
         }
         $this->adapter = $adapter;
-        $this->limitPerPage = $limitPerPage;
+        $this->queryParameters = $queryParameters;
         $this->uriParameters = $uriParameters;
-        $this->lastPage = (int) ceil($this->getNumberOfResults() / $this->limitPerPage);
+        $this->lastPage = (int) ceil($this->getNumberOfResults() / $queryParameters['limit']);
     }
 
     public function getCurrentPageResults()
     {
         if (!$this->isResultCached()) {
-            $this->currentResults = $this->adapter->getResults($this->currentPage, $this->limitPerPage, $this->uriParameters);
+            $this->queryParameters['page'] = $this->currentPage;
+            $this->currentResults = $this->adapter->getResults($this->queryParameters, $this->uriParameters);
         }
 
         return $this->currentResults;
