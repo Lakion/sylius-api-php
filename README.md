@@ -53,6 +53,7 @@ parameters:
     app.sylius_client.secret: secret_demo_client
     app.sylius_client.username: api@example.com
     app.sylius_client.password: api
+    app.sylius_taxonomy.uri: taxonomies
 
 services:
     #Http client that is used to connect with Sylius API
@@ -86,6 +87,12 @@ services:
         arguments: [@app.http_client.sylius]
         calls:
             - [attachSubscriber, ["@app.oauth_subscriber.sylius"]]
+
+    #Example API
+    app.sylius_taxonomy.api
+        class: Sylius\Api\GenericApi
+        arguments: [@app.api_client.sylius, %app.sylius_taxonomy.uri%]
+
     #Uri map with custom uris
     app.api_resolver.uri_map.sylius:
         class: Sylius\Api\Map\ArrayUriMap
@@ -106,7 +113,10 @@ services:
 
 **Get API for resource**
 ```php
+#Obtain api using api resolver
 $taxonomiesApi = $apiResolver->getApi('taxonomies');
+#or register it as a service and obtain it from container
+$taxonomiesApi = $container->get('app.sylius_taxonomy.api');
 $taxonsApi = $apiResolver->getApi('taxons');
 ```
 
