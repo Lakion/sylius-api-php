@@ -64,8 +64,7 @@ class GenericApiSpec extends ObjectBehavior
     {
         $response->getHeader('Content-Type')->willReturn('application/json');
         $response->json()->willReturn(['id' => 1, 'name' => 'Resource name']);
-        $client->get('uri/1')->willReturn($response);
-        $client->get('uri/1')->shouldBeCalled();
+        $client->get('uri/1')->willReturn($response)->shouldBeCalled();
 
         $this->get(1)->shouldReturn(['id' => 1, 'name' => 'Resource name']);
     }
@@ -75,8 +74,7 @@ class GenericApiSpec extends ObjectBehavior
         $this->beConstructedWith($client, 'parentUri/{parentId}/uri', $adapterFactory, $paginatorFactory);
         $response->getHeader('Content-Type')->willReturn('application/json');
         $response->json()->willReturn(['id' => 1, 'name' => 'Resource name']);
-        $client->get('parentUri/2/uri/1')->willReturn($response);
-        $client->get('parentUri/2/uri/1')->shouldBeCalled();
+        $client->get('parentUri/2/uri/1')->willReturn($response)->shouldBeCalled();
 
         $this->get(1, ['parentId' => 2] )->shouldReturn(['id' => 1, 'name' => 'Resource name']);
     }
@@ -86,8 +84,7 @@ class GenericApiSpec extends ObjectBehavior
         $this->beConstructedWith($client, 'parentUri/{parentId}/secondParentUri/{secondParentId}/uri', $adapterFactory, $paginatorFactory);
         $response->getHeader('Content-Type')->willReturn('application/json');
         $response->json()->willReturn(['id' => 1, 'name' => 'Resource name']);
-        $client->get('parentUri/2/secondParentUri/1/uri/1')->willReturn($response);
-        $client->get('parentUri/2/secondParentUri/1/uri/1')->shouldBeCalled();
+        $client->get('parentUri/2/secondParentUri/1/uri/1')->willReturn($response)->shouldBeCalled();
 
         $this->get(1, ['parentId' => 2, 'secondParentId' => 1] )->shouldReturn(['id' => 1, 'name' => 'Resource name']);
     }
@@ -133,8 +130,9 @@ class GenericApiSpec extends ObjectBehavior
     {
         $response->getHeader('Content-Type')->willReturn('application/json');
         $response->json()->willReturn(['id' => 1, 'field1' => 'field1Value', 'field2' => 'field2Value']);
-        $client->post('uri/', ['field1' => 'field1Value', 'field2' => 'field2Value'], [])->willReturn($response);
-        $client->post('uri/', ['field1' => 'field1Value', 'field2' => 'field2Value'], [])->shouldBeCalled();
+        $client->post('uri/', ['field1' => 'field1Value', 'field2' => 'field2Value'], [])
+            ->willReturn($response)->shouldBeCalled();
+
         $this->create(['field1' => 'field1Value', 'field2' => 'field2Value'])->shouldReturn(['id' => 1, 'field1' => 'field1Value', 'field2' => 'field2Value']);
     }
 
@@ -142,8 +140,9 @@ class GenericApiSpec extends ObjectBehavior
     {
         $response->getHeader('Content-Type')->willReturn('application/json');
         $response->json()->willReturn(['id' => 1, 'field1' => 'field1Value', 'field2' => 'field2Value', 'images[0][file]' => 'path/to/file1.jpg']);
-        $client->post('uri/', ['field1' => 'field1Value', 'field2' => 'field2Value'], ['images[0][file]' => 'path/to/file1.jpg'])->willReturn($response);
-        $client->post('uri/', ['field1' => 'field1Value', 'field2' => 'field2Value'], ['images[0][file]' => 'path/to/file1.jpg'])->shouldBeCalled();
+        $client->post('uri/', ['field1' => 'field1Value', 'field2' => 'field2Value'], ['images[0][file]' => 'path/to/file1.jpg'])
+            ->willReturn($response)->shouldBeCalled();
+
         $this->create(['field1' => 'field1Value', 'field2' => 'field2Value'], [], ['images[0][file]' => 'path/to/file1.jpg'])
             ->shouldReturn(['id' => 1, 'field1' => 'field1Value', 'field2' => 'field2Value', 'images[0][file]' => 'path/to/file1.jpg']);
     }
@@ -153,24 +152,28 @@ class GenericApiSpec extends ObjectBehavior
         $this->beConstructedWith($client, 'parentUri/{parentId}/uri', $adapterFactory, $paginatorFactory);
         $response->getHeader('Content-Type')->willReturn('application/json');
         $response->json()->willReturn(['id' => 1, 'field1' => 'field1Value', 'field2' => 'field2Value']);
-        $client->post('parentUri/2/uri/', ['field1' => 'field1Value', 'field2' => 'field2Value'], [])->willReturn($response);
-        $client->post('parentUri/2/uri/', ['field1' => 'field1Value', 'field2' => 'field2Value'], [])->shouldBeCalled();
-        $this->create(['field1' => 'field1Value', 'field2' => 'field2Value'], ['parentId' => 2])->shouldReturn(['id' => 1, 'field1' => 'field1Value', 'field2' => 'field2Value']);
+        $client->post('parentUri/2/uri/', ['field1' => 'field1Value', 'field2' => 'field2Value'], [])
+            ->willReturn($response)->shouldBeCalled();
+
+        $this->create(['field1' => 'field1Value', 'field2' => 'field2Value'], ['parentId' => 2])
+            ->shouldReturn(['id' => 1, 'field1' => 'field1Value', 'field2' => 'field2Value']);
     }
 
     function it_updates_resource_with_body($client, ResponseInterface $response)
     {
         $response->getStatusCode()->willReturn(204);
-        $client->patch('uri/1', ['field1' => 'field1Value', 'field2' => 'field2Value'])->willReturn($response);
-        $client->patch('uri/1', ['field1' => 'field1Value', 'field2' => 'field2Value'])->shouldBeCalled();
+        $client->patch('uri/1', ['field1' => 'field1Value', 'field2' => 'field2Value'])
+            ->willReturn($response)->shouldBeCalled();
+
         $this->update(1, ['field1' => 'field1Value', 'field2' => 'field2Value'])->shouldReturn(true);
     }
 
     function it_updates_resource_with_body_and_files($client, ResponseInterface $response)
     {
         $response->getStatusCode()->willReturn(204);
-        $client->post('uri/1', ['field1' => 'field1Value', 'field2' => 'field2Value'], ['images[0][file]' => 'path/to/file1.jpg'])->willReturn($response);
-        $client->post('uri/1', ['field1' => 'field1Value', 'field2' => 'field2Value'], ['images[0][file]' => 'path/to/file1.jpg'])->shouldBeCalled();
+        $client->post('uri/1', ['field1' => 'field1Value', 'field2' => 'field2Value'], ['images[0][file]' => 'path/to/file1.jpg'])
+            ->willReturn($response)->shouldBeCalled();
+
         $this->update(1, ['field1' => 'field1Value', 'field2' => 'field2Value'], [], ['images[0][file]' => 'path/to/file1.jpg'])->shouldReturn(true);
     }
 
@@ -178,24 +181,25 @@ class GenericApiSpec extends ObjectBehavior
     {
         $this->beConstructedWith($client, 'parentUri/{parentId}/uri', $adapterFactory, $paginatorFactory);
         $response->getStatusCode()->willReturn(204);
-        $client->patch('parentUri/1/uri/2', ['field1' => 'field1Value', 'field2' => 'field2Value'])->willReturn($response);
-        $client->patch('parentUri/1/uri/2', ['field1' => 'field1Value', 'field2' => 'field2Value'])->shouldBeCalled();
+        $client->patch('parentUri/1/uri/2', ['field1' => 'field1Value', 'field2' => 'field2Value'])
+            ->willReturn($response)->shouldBeCalled();
+
         $this->update(2, ['field1' => 'field1Value', 'field2' => 'field2Value'], ['parentId' => 1])->shouldReturn(true);
     }
 
     function it_returns_false_if_resource_update_was_not_successful($client, ResponseInterface $response)
     {
         $response->getStatusCode()->willReturn(400);
-        $client->patch('uri/1', ['field1' => 'field1Value', 'field2' => 'field2Value'])->willReturn($response);
-        $client->patch('uri/1', ['field1' => 'field1Value', 'field2' => 'field2Value'])->shouldBeCalled();
+        $client->patch('uri/1', ['field1' => 'field1Value', 'field2' => 'field2Value'])->willReturn($response)->shouldBeCalled();
+
         $this->update(1, ['field1' => 'field1Value', 'field2' => 'field2Value'])->shouldReturn(false);
     }
 
     function it_deletes_resource_by_id($client, ResponseInterface $response)
     {
         $response->getStatusCode()->willReturn(204);
-        $client->delete('uri/1')->willReturn($response);
-        $client->delete('uri/1')->shouldBeCalled();
+        $client->delete('uri/1')->willReturn($response)->shouldBeCalled();
+
         $this->delete(1)->shouldReturn(true);
     }
 
@@ -203,16 +207,16 @@ class GenericApiSpec extends ObjectBehavior
     {
         $this->beConstructedWith($client, 'parentUri/{parentId}/uri', $adapterFactory, $paginatorFactory);
         $response->getStatusCode()->willReturn(204);
-        $client->delete('parentUri/1/uri/2')->willReturn($response);
-        $client->delete('parentUri/1/uri/2')->shouldBeCalled();
+        $client->delete('parentUri/1/uri/2')->willReturn($response)->shouldBeCalled();
+
         $this->delete(2, ['parentId' => 1])->shouldReturn(true);
     }
 
     function it_returns_false_if_resource_deletion_was_not_successful($client, ResponseInterface $response)
     {
         $response->getStatusCode()->willReturn(400);
-        $client->delete('uri/1')->willReturn($response);
-        $client->delete('uri/1')->shouldBeCalled();
+        $client->delete('uri/1')->willReturn($response)->shouldBeCalled();
+
         $this->delete(1)->shouldReturn(false);
     }
 
@@ -221,6 +225,8 @@ class GenericApiSpec extends ObjectBehavior
         $paginatorFactory->create($adapter, ['limit' => 100], [])->willReturn($paginator)->shouldBeCalled();
         $paginator->getCurrentPageResults()->willReturn(['a', 'b', 'c']);
         $paginator->hasNextPage()->willReturn(false);
+        $paginator->nextPage()->shouldNotBeCalled();
+
         $this->getAll()->shouldReturn(['a', 'b', 'c']);
     }
 
@@ -229,7 +235,8 @@ class GenericApiSpec extends ObjectBehavior
         $paginatorFactory->create($adapter, ['limit' => 2], [])->willReturn($paginator)->shouldBeCalled();
         $paginator->getCurrentPageResults()->willReturn(['a', 'b'], ['c']);
         $paginator->hasNextPage()->willReturn(true, false);
-        $paginator->nextPage()->shouldBeCalled();
+        $paginator->nextPage()->shouldBeCalledTimes(1);
+
         $this->getAll(['limit' => 2])->shouldReturn(['a', 'b', 'c']);
     }
 
@@ -239,19 +246,20 @@ class GenericApiSpec extends ObjectBehavior
         $paginatorFactory->create($adapter, ['limit' => 100], ['parentId' => 1])->willReturn($paginator)->shouldBeCalled();
         $paginator->getCurrentPageResults()->willReturn(['a', 'b', 'c']);
         $paginator->hasNextPage()->willReturn(false);
+
         $this->getAll([], ['parentId' => 1])->shouldReturn(['a', 'b', 'c']);
     }
 
     function it_creates_paginator_with_defined_limit($adapter, $paginatorFactory, PaginatorInterface $paginator)
     {
-        $paginatorFactory->create($adapter, ['limit' => 15], [])->willReturn($paginator);
+        $paginatorFactory->create($adapter, ['limit' => 15], [])->willReturn($paginator)->shouldBeCalled();
         $this->createPaginator(['limit' => 15])->shouldReturn($paginator);
     }
 
-    function it_creates_paginator_with_default_limit($adapter, $paginatorFactory)
+    function it_creates_paginator_with_default_limit($adapter, $paginatorFactory, PaginatorInterface $paginator)
     {
-        $paginatorFactory->create($adapter, ['limit' => 10], [])->shouldBeCalled();
-        $this->createPaginator();
+        $paginatorFactory->create($adapter, ['limit' => 10], [])->willReturn($paginator)->shouldBeCalled();
+        $this->createPaginator()->shouldReturn($paginator);
     }
 
     function it_throws_exception_when_invalid_response_format_is_received($client, ResponseInterface $response)
@@ -259,8 +267,7 @@ class GenericApiSpec extends ObjectBehavior
         $response->getHeader('Content-Type')->willReturn('application/xhtml+xml');
         $response->getBody()->willReturn('body');
         $response->getStatusCode()->willReturn(400);
-        $client->get('uri/1')->willReturn($response);
-        $client->get('uri/1')->shouldBeCalled();
+        $client->get('uri/1')->willReturn($response)->shouldBeCalled();
 
         $this->shouldThrow(new InvalidResponseFormatException('body', 400))->during('get', [1]);
     }
