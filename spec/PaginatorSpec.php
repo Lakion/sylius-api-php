@@ -64,13 +64,14 @@ class PaginatorSpec extends ObjectBehavior
     function it_gets_current_page_results($adapter)
     {
         $adapter->getNumberOfResults([])->willReturn(3);
-        $adapter->getResults(['page' => 1, 'limit' => 10], [])->willReturn(array('a', 'b', 'c'));
+        $adapter->getResults(['page' => 1, 'limit' => 10], [])->willReturn(array('a', 'b', 'c'))->shouldBeCalled();
         $this->getCurrentPageResults()->shouldReturn(array('a', 'b', 'c'));
     }
 
     function it_caches_results_for_current_page($adapter)
     {
         $adapter->getNumberOfResults([])->willReturn(3);
+        $adapter->getResults(['page' => 1, 'limit' => 10], [])->shouldBeCalledTimes(1);
         $adapter->getResults(['page' => 1, 'limit' => 10], [])->willReturn(array('a', 'b', 'c'));
         $this->getCurrentPageResults()->shouldReturn(array('a', 'b', 'c'));
 
@@ -94,6 +95,7 @@ class PaginatorSpec extends ObjectBehavior
     {
         $this->beConstructedWith($adapter, ['limit' => 5]);
         $adapter->getNumberOfResults([])->willReturn(8);
+        $adapter->getResults(['page' => 1, 'limit' => 5], [])->shouldBeCalledTimes(2);
         $adapter->getResults(['page' => 1, 'limit' => 5], [])->willReturn(array('a', 'b', 'c', 'b', 'e'));
         $adapter->getResults(['page' => 2, 'limit' => 5], [])->willReturn(array('f', 'g', 'h'));
 
