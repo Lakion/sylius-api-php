@@ -61,12 +61,5 @@ interface ClientInterface
      * @return string The scheme and HTTP host
      */
     public function getSchemeAndHost();
-
-    /**
-     * Attach subscriber to httpClient emitter
-     *
-     * @param SubscriberInterface $subscriber
-     */
-     public function attachSubscriber(SubscriberInterface $subscriber);
 }
 

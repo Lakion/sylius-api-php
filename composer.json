@@ -4,17 +4,11 @@
     "license": "MIT",
     "require": {
         "php": ">=5.4.0",
-        "guzzlehttp/guzzle": "~5.2",
-        "nmrkt/guzzle5-oauth2-subscriber": "dev-master"
+        "guzzlehttp/guzzle": "~5.0",
+        "commerceguys/guzzle-oauth2-plugin": "~2.0"
     },
-    "repositories": [
-        {
-          "type": "vcs",
-          "url": "https://github.com/michalmarcinkowski/guzzle5-oauth2-subscriber"
-        }
-    ],
     "require-dev": {
-        "phpspec/phpspec": "~2.1@dev"
+        "phpspec/phpspec": "~2.0"
     },
     "config": {
         "bin-dir": "bin"
