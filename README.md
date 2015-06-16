@@ -67,7 +67,7 @@ parameters:
 
 services:
     #Http client that is used to obtain OAuth2 token
-    app.http_client.sylius_oauth
+    app.http_client.sylius_oauth:
         class: GuzzleHttp\Client
         arguments:
             - { base_url: %app.http_client.sylius.base_url% }
