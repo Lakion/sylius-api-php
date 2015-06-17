@@ -57,7 +57,8 @@ If you use Symfony2 framework, you can also register some services, initialize S
 ```yml
 
 parameters:
-    app.http_client.sylius.base_url: 'http://demo.sylius.org'
+    app.http_client.sylius.base_url: 'http://local.sylius.dev/app_dev.php/'
+    app.http_client.sylius.api_url: 'http://local.sylius.dev/app_dev.php/api/'
     app.http_client.sylius.token_url: 'oauth/v2/token'
     app.sylius_client.id: 1_demo_client
     app.sylius_client.secret: secret_demo_client
@@ -76,25 +77,13 @@ services:
         class: CommerceGuys\Guzzle\Oauth2\GrantType\PasswordCredentials
         arguments:
             - @app.http_client.sylius_oauth
-            - {
-                token_url:     %app.http_client.sylius.token_url%,
-                client_id:     %app.sylius_client.id%,
-                client_secret: %app.sylius_client.secret%,
-                username:      %app.sylius_client.username%,
-                password:      %app.sylius_client.password%
-              }
+            - { token_url: %app.http_client.sylius.token_url%, client_id: %app.sylius_client.id%, client_secret: %app.sylius_client.secret%, username: %app.sylius_client.username%, password: %app.sylius_client.password% }
     #Refresh token that use http client to refresh oauth2 token
     app.oauth2.grant_type.refresh_token:
         class: CommerceGuys\Guzzle\Oauth2\GrantType\RefreshToken
         arguments:
             - @app.http_client.sylius_oauth
-            - {
-                token_url:     %app.http_client.sylius.token_url%,
-                client_id:     %app.sylius_client.id%,
-                client_secret: %app.sylius_client.secret%,
-                username:      %app.sylius_client.username%,
-                password:      %app.sylius_client.password%
-              }
+            - { token_url: %app.http_client.sylius.token_url%, client_id: %app.sylius_client.id%, client_secret: %app.sylius_client.secret%, username: %app.sylius_client.username%, password: %app.sylius_client.password% }
     #Subscriber used by Sylius API Client to provide OAuth2 authentication
     app.oauth2.subscriber.sylius_api:
         class: CommerceGuys\Guzzle\Oauth2\Oauth2Subscriber
@@ -103,20 +92,14 @@ services:
     app.http_client.sylius_api:
         class: GuzzleHttp\Client
         arguments:
-            - {
-                base_url: '%app.http_client.sylius.base_url%/api/',
-                defaults: {
-                    auth: 'oauth2',
-                    subscribers: { @app.oauth2.subscriber.sylius_api }
-                }
-            }
+            - { base_url: '%app.http_client.sylius.api_url%', defaults: { auth: 'oauth2', subscribers: [@app.oauth2.subscriber.sylius_api] } }
     #Sylius API Client
     app.api_client.sylius:
         class: Sylius\Api\Client
         arguments: [@app.http_client.sylius_api]
 
     #Example API
-    app.sylius_taxonomy.api
+    app.sylius_taxonomy.api:
         class: Sylius\Api\GenericApi
         arguments: [@app.api_client.sylius, %app.sylius_taxonomy.uri%]
 
@@ -124,13 +107,7 @@ services:
     app.api_resolver.uri_map.sylius:
         class: Sylius\Api\Map\ArrayUriMap
         arguments:
-            - {
-                product-variants: 'products/{productId}/variants',
-                taxons:           'taxonomies/{taxonomyId}/taxons',
-                items:            'orders/{orderId}/items',
-                coupons:          'promotions/{promotionId}/coupons',
-                provinces:        'countries/{countryId}/provinces'
-              }
+            - { product-variants: 'products/{productId}/variants', taxons: 'taxonomies/{taxonomyId}/taxons', items: 'orders/{orderId}/items', coupons: 'promotions/{promotionId}/coupons', provinces: 'countries/{countryId}/provinces' }
     #Initialize Api resolver with uri map
     app.api_resolver.sylius:
         class: Sylius\Api\ApiResolver
