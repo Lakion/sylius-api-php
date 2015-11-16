@@ -46,6 +46,7 @@ class Paginator implements PaginatorInterface
         }
         $this->adapter = $adapter;
         $this->queryParameters = $queryParameters;
+        $this->queryParameters['page'] = $this->currentPage;
         $this->uriParameters = $uriParameters;
         $this->lastPage = (int) ceil($this->getNumberOfResults() / $queryParameters['limit']);
     }
@@ -96,7 +97,7 @@ class Paginator implements PaginatorInterface
     public function getNumberOfResults()
     {
         if (-1 === $this->numberOfResults) {
-            $this->numberOfResults = $this->adapter->getNumberOfResults($this->uriParameters);
+            $this->numberOfResults = $this->adapter->getNumberOfResults($this->queryParameters, $this->uriParameters);
         }
 
         return $this->numberOfResults;
