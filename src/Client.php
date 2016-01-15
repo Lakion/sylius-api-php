@@ -11,8 +11,9 @@
 
 namespace Sylius\Api;
 
-use GuzzleHttp\ClientInterface as HttpClientInterface;
+use CommerceGuys\Guzzle\Oauth2\Oauth2Subscriber;
 use GuzzleHttp\Client as HttpClient;
+use GuzzleHttp\ClientInterface as HttpClientInterface;
 use GuzzleHttp\Event\SubscriberInterface;
 use GuzzleHttp\Post\PostBodyInterface;
 use GuzzleHttp\Url;
@@ -105,27 +106,29 @@ class Client implements ClientInterface
 
     /**
      * @param  string                   $url
-     * @param  null|SubscriberInterface $oauth2Subscriber
+     * @param  null|SubscriberInterface $subscriber
      * @param  array                    $options
      * @return Client
      */
-    public static function createFromUrl($url, SubscriberInterface $oauth2Subscriber = null, array $options = [])
+    public static function createFromUrl($url, SubscriberInterface $subscriber = null, array $options = [])
     {
         $options['base_url'] = $url;
-        self::resolveDefaults($options, $oauth2Subscriber);
+        self::resolveDefaults($options, $subscriber);
 
         return new self(new HttpClient($options));
     }
 
-    private static function resolveDefaults(array &$options, SubscriberInterface $oauth2Subscriber = null)
+    private static function resolveDefaults(array &$options, SubscriberInterface $subscriber = null)
     {
         $options['defaults']['headers']['User-Agent'] = isset($options['defaults']['headers']['User-Agent']) ? $options['defaults']['headers']['User-Agent'] : 'SyliusApi/0.1';
         $options['defaults']['headers']['Accept'] = isset($options['defaults']['headers']['Accept']) ? $options['defaults']['headers']['Accept'] : 'application/json';
         $options['defaults']['exceptions'] = isset($options['defaults']['exceptions']) ? $options['defaults']['exceptions'] : false;
 
-        if ($oauth2Subscriber) {
-            $options['defaults']['auth'] = 'oauth2';
-            $options['defaults']['subscribers'][] = $oauth2Subscriber;
+        if ($subscriber) {
+            $options['defaults']['subscribers'][] = $subscriber;
+            if ($subscriber instanceof Oauth2Subscriber) {
+                $options['defaults']['auth'] = 'oauth2';
+            }
         }
     }
 }
