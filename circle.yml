@@ -1,6 +1,6 @@
 machine:
   php:
-    version: 5.4.4
+    version: 5.5.9
 test:
   override:
     - bin/phpspec run

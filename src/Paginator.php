@@ -35,8 +35,8 @@ class Paginator implements PaginatorInterface
 
     /**
      * @param AdapterInterface $adapter
-     * @param array            $queryParameters
-     * @param array            $uriParameters
+     * @param array $queryParameters
+     * @param array $uriParameters
      */
     public function __construct(AdapterInterface $adapter, array $queryParameters = [], array $uriParameters = [])
     {
@@ -48,7 +48,7 @@ class Paginator implements PaginatorInterface
         $this->queryParameters = $queryParameters;
         $this->queryParameters['page'] = $this->currentPage;
         $this->uriParameters = $uriParameters;
-        $this->lastPage = (int) ceil($this->getNumberOfResults() / $queryParameters['limit']);
+        $this->lastPage = (int)ceil($this->getNumberOfResults() / $queryParameters['limit']);
     }
 
     public function getCurrentPageResults()

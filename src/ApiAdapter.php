@@ -30,13 +30,13 @@ class ApiAdapter implements AdapterInterface
     {
         $result = $this->getResult($queryParameters, $uriParameters);
 
-        return isset($result['_embedded']['items']) ? $result['_embedded']['items'] : array();
+        return isset($result['_embedded']['items']) ? $result['_embedded']['items'] : [];
     }
 
     /**
      * @param array $queryParameters
      * @param array $uriParameters
-     * @param bool  $cacheResult
+     * @param bool $cacheResult
      *
      * @return array
      */
@@ -49,7 +49,7 @@ class ApiAdapter implements AdapterInterface
 
         $result = $this->api->getPaginated($queryParameters, $uriParameters);
         if ($cacheResult) {
-            $this->cachedResults = array();
+            $this->cachedResults = [];
             $this->cachedResults[$hash] = $result;
         }
 
