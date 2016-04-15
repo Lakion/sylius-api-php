@@ -18,10 +18,11 @@ interface ApiInterface
 {
     /**
      * @param  string|int $id Resource ID
+     * @param  array $queryParameters
      * @param  array $uriParameters
      * @return array
      */
-    public function get($id, array $uriParameters = []);
+    public function get($id, array $queryParameters = [], array $uriParameters = []);
 
     /**
      * @param  array $queryParameters

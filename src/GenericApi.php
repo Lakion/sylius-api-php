@@ -108,9 +108,9 @@ class GenericApi implements ApiInterface
     /**
      * {@inheritdoc}
      */
-    public function get($id, array $uriParameters = [])
+    public function get($id, array $queryParameters = [], array $uriParameters = [])
     {
-        $response = $this->client->get(sprintf('%s%s', $this->getUri($uriParameters), $id));
+        $response = $this->client->get(sprintf('%s%s', $this->getUri($uriParameters), $id), $queryParameters);
 
         return $this->responseToArray($response);
     }

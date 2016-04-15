@@ -75,7 +75,7 @@ class GenericApiSpec extends ObjectBehavior
         $response->getHeaderLine('Content-Type')->willReturn('application/json');
         $response->getBody()->willReturn($json);
         $jsonDecoder->decode($json, 'json')->shouldBeCalled()->willReturn($return);
-        $client->get('uri/1')->willReturn($response)->shouldBeCalled();
+        $client->get('uri/1', [])->willReturn($response)->shouldBeCalled();
 
         $this->get(1)->shouldReturn($return);
     }
@@ -95,9 +95,9 @@ class GenericApiSpec extends ObjectBehavior
         $response->getHeaderLine('Content-Type')->willReturn('application/json');
         $response->getBody()->willReturn($json);
         $jsonDecoder->decode($json, 'json')->shouldBeCalled()->willReturn($return);
-        $client->get('parentUri/2/uri/1')->willReturn($response)->shouldBeCalled();
+        $client->get('parentUri/2/uri/1', [])->willReturn($response)->shouldBeCalled();
 
-        $this->get(1, ['parentId' => 2])->shouldReturn($return);
+        $this->get(1, [], ['parentId' => 2])->shouldReturn($return);
     }
 
     function it_gets_resource_by_id_for_a_specific_uri_with_multiple_uri_parameters(
@@ -121,9 +121,22 @@ class GenericApiSpec extends ObjectBehavior
         $response->getHeaderLine('Content-Type')->willReturn('application/json');
         $response->getBody()->willReturn($json);
         $jsonDecoder->decode($json, 'json')->shouldBeCalled()->willReturn($return);
-        $client->get('parentUri/2/secondParentUri/1/uri/1')->willReturn($response)->shouldBeCalled();
+        $client->get('parentUri/2/secondParentUri/1/uri/1', [])->willReturn($response)->shouldBeCalled();
 
-        $this->get(1, ['parentId' => 2, 'secondParentId' => 1])->shouldReturn($return);
+        $this->get(1, [], ['parentId' => 2, 'secondParentId' => 1])->shouldReturn($return);
+    }
+
+    function it_gets_resource_by_id_with_query_parameters($client, ResponseInterface $response, JsonDecode $jsonDecoder)
+    {
+        $return = ['id' => 1, 'name' => 'Resource name'];
+        $json = json_encode($return);
+
+        $response->getHeaderLine('Content-Type')->willReturn('application/json');
+        $response->getBody()->willReturn($json);
+        $jsonDecoder->decode($json, 'json')->shouldBeCalled()->willReturn($return);
+        $client->get('uri/1', ['foo' => 'bar'])->willReturn($response)->shouldBeCalled();
+
+        $this->get(1, ['foo' => 'bar'])->shouldReturn($return);
     }
 
     function it_gets_paginated_resources($client, ResponseInterface $response, JsonDecode $jsonDecoder)
@@ -372,7 +385,7 @@ class GenericApiSpec extends ObjectBehavior
         $response->getHeaderLine('Content-Type')->willReturn('application/xhtml+xml');
         $response->getBody()->willReturn('json');
         $response->getStatusCode()->willReturn(400);
-        $client->get('uri/1')->willReturn($response)->shouldBeCalled();
+        $client->get('uri/1', [])->willReturn($response)->shouldBeCalled();
 
         $this->shouldThrow(new InvalidResponseFormatException('json', 400))->during('get', [1]);
     }
