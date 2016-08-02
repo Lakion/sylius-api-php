@@ -269,6 +269,15 @@ class GenericApiSpec extends ObjectBehavior
         $this->update(1, ['field1' => 'field1Value', 'field2' => 'field2Value'])->shouldReturn(true);
     }
 
+    function it_puts_resource_with_body($client, ResponseInterface $response)
+    {
+        $response->getStatusCode()->willReturn(204);
+        $client->put('uri/1', ['field1' => 'field1Value', 'field2' => 'field2Value'])
+            ->willReturn($response)->shouldBeCalled();
+
+        $this->put(1, ['field1' => 'field1Value', 'field2' => 'field2Value'])->shouldReturn(true);
+    }
+
     function it_updates_resource_with_body_and_files($client, ResponseInterface $response)
     {
         $response->getStatusCode()->willReturn(204);

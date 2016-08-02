@@ -63,6 +63,14 @@ interface ApiInterface
     public function update($id, array $body, array $uriParameters = [], array $files = []);
 
     /**
+     * @param  int $id Resource ID
+     * @param  array $body Array of fields to be sent to api
+     * @param  array $uriParameters
+     * @return bool
+     */
+    public function put($id, array $body, array $uriParameters = []);
+
+    /**
      * @param  string|int $id Resource ID
      * @param  array $uriParameters
      * @return bool

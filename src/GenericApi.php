@@ -182,6 +182,17 @@ class GenericApi implements ApiInterface
     /**
      * {@inheritdoc}
      */
+    public function put($id, array $body, array $uriParameters = [])
+    {
+        $uri = sprintf('%s%s', $this->getUri($uriParameters), $id);
+        $response = $this->client->put($uri, $body);
+
+        return (204 === $response->getStatusCode());
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function delete($id, array $uriParameters = [])
     {
         $response = $this->client->delete(sprintf('%s%s', $this->getUri($uriParameters), $id));
