@@ -40,6 +40,10 @@ class Paginator implements PaginatorInterface
      */
     public function __construct(AdapterInterface $adapter, array $queryParameters = [], array $uriParameters = [])
     {
+        $this->currentPage = isset($queryParameters['page']) ? $queryParameters['page'] : $this->currentPage;
+        if (!is_int($this->currentPage)) {
+            throw new \InvalidArgumentException('Page number must an integer!');
+        }
         $queryParameters['limit'] = isset($queryParameters['limit']) ? $queryParameters['limit'] : 10;
         if (!is_int($queryParameters['limit'])) {
             throw new \InvalidArgumentException('Page limit must an integer!');
