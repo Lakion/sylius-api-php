@@ -54,11 +54,28 @@ class PaginatorSpec extends ObjectBehavior
         $this->getCurrentPageResults()->shouldHaveCount(15);
     }
 
+    function its_page_can_be_specified($adapter)
+    {
+        $this->beConstructedWith($adapter, ['page' => 2]);
+        $adapter->getNumberOfResults(['page' => 2, 'limit' => 10], [])->willReturn(30);
+        $adapter->getResults(['page' => 2, 'limit' => 10], [])
+            ->willReturn(array('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o'));
+
+        $this->getCurrentPage()->shouldEqual(2);
+    }
+
     function it_validates_that_limit_is_int($adapter)
     {
         $this->shouldThrow('InvalidArgumentException')->during('__construct', [$adapter, ['limit' => '1']]);
         $this->shouldThrow('InvalidArgumentException')->during('__construct', [$adapter, ['limit' => new \stdClass()]]);
         $this->shouldThrow('InvalidArgumentException')->during('__construct', [$adapter, ['limit' => 1.5]]);
+    }
+
+    function it_validates_that_page_is_int($adapter)
+    {
+        $this->shouldThrow('InvalidArgumentException')->during('__construct', [$adapter, ['page' => '1']]);
+        $this->shouldThrow('InvalidArgumentException')->during('__construct', [$adapter, ['page' => new \stdClass()]]);
+        $this->shouldThrow('InvalidArgumentException')->during('__construct', [$adapter, ['page' => 1.5]]);
     }
 
     function it_gets_current_page_results($adapter)
