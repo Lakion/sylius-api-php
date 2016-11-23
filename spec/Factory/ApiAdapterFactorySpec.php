@@ -12,7 +12,9 @@
 namespace spec\Sylius\Api\Factory;
 
 use PhpSpec\ObjectBehavior;
+use Sylius\Api\AdapterInterface;
 use Sylius\Api\ApiInterface;
+use Sylius\Api\Factory\AdapterFactoryInterface;
 
 /**
  * @author Michał Marcinkowski <michal.marcinkowski@lakion.com>
@@ -31,11 +33,11 @@ class ApiAdapterFactorySpec extends ObjectBehavior
 
     function it_implements_adapter_interface()
     {
-        $this->shouldImplement('Sylius\Api\Factory\AdapterFactoryInterface');
+        $this->shouldImplement(AdapterFactoryInterface::class);
     }
 
     function it_returns_api_adapter_interface()
     {
-        $this->create()->shouldImplement('Sylius\Api\AdapterInterface');
+        $this->create()->shouldImplement(AdapterInterface::class);
     }
 }

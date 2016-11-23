@@ -12,6 +12,7 @@
 namespace spec\Sylius\Api\Map;
 
 use PhpSpec\ObjectBehavior;
+use Sylius\Api\Map\UriMapInterface;
 
 /**
  * @author Michał Marcinkowski <michal.marcinkowski@lakion.com>
@@ -23,7 +24,7 @@ class ArrayUriMapSpec extends ObjectBehavior
         $this->beConstructedWith(
             [
                 'product_variants' => 'products/{productId}/products_variants',
-                'taxons'           => 'taxonomies/{taxonomyId}/taxons'
+                'taxons' => 'taxonomies/{taxonomyId}/taxons',
             ]
         );
     }
@@ -35,22 +36,22 @@ class ArrayUriMapSpec extends ObjectBehavior
 
     function it_implements_uri_map_interface()
     {
-        $this->shouldImplement('Sylius\Api\Map\UriMapInterface');
+        $this->shouldImplement(UriMapInterface::class);
     }
 
     function its_get_uri_method_accepts_only_string()
     {
-        $this->shouldThrow('InvalidArgumentException')->during('getUri', [123]);
-        $this->shouldThrow('InvalidArgumentException')->during('getUri', [1.23]);
-        $this->shouldThrow('InvalidArgumentException')->during('getUri', [true]);
-        $this->shouldThrow('InvalidArgumentException')->during('getUri', [array()]);
-        $this->shouldThrow('InvalidArgumentException')->during('getUri', [new \stdClass()]);
-        $this->shouldNotThrow('InvalidArgumentException')->during('getUri', ['string']);
+        $this->shouldThrow(\InvalidArgumentException::class)->during('getUri', [123]);
+        $this->shouldThrow(\InvalidArgumentException::class)->during('getUri', [1.23]);
+        $this->shouldThrow(\InvalidArgumentException::class)->during('getUri', [true]);
+        $this->shouldThrow(\InvalidArgumentException::class)->during('getUri', [[]]);
+        $this->shouldThrow(\InvalidArgumentException::class)->during('getUri', [new \stdClass()]);
+        $this->shouldNotThrow(\InvalidArgumentException::class)->during('getUri', ['string']);
     }
 
     function it_throws_exception_when_empty_string_given_to_get_uri_method()
     {
-        $this->shouldThrow('InvalidArgumentException')->during('getUri', ['']);
+        $this->shouldThrow(\InvalidArgumentException::class)->during('getUri', ['']);
     }
 
     function it_gets_uri_for_defined_resource()
@@ -70,11 +71,11 @@ class ArrayUriMapSpec extends ObjectBehavior
         $this->beConstructedWith(
             [
                 'product_variants' => 'products/{productId}/products_variants',
-                'taxons' => 'taxonomies/{taxonomyId}/taxons'
+                'taxons' => 'taxonomies/{taxonomyId}/taxons',
             ],
             false
         );
         $this->getUri('taxons')->shouldReturn('taxonomies/{taxonomyId}/taxons');
-        $this->shouldThrow('InvalidArgumentException')->during('getUri', ['products']);
+        $this->shouldThrow(\InvalidArgumentException::class)->during('getUri', ['products']);
     }
 }

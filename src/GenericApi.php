@@ -11,17 +11,27 @@
 
 namespace Sylius\Api;
 
-use GuzzleHttp\Message\ResponseInterface;
-use Sylius\Api\Factory\ApiAdapterFactory;
+use Psr\Http\Message\ResponseInterface;
 use Sylius\Api\Factory\AdapterFactoryInterface;
+use Sylius\Api\Factory\ApiAdapterFactory;
 use Sylius\Api\Factory\PaginatorFactory;
 use Sylius\Api\Factory\PaginatorFactoryInterface;
+use Symfony\Component\Serializer\Encoder\JsonDecode;
+use Symfony\Component\Serializer\Encoder\XmlEncoder;
 
 /**
  * @author Michał Marcinkowski <michal.marcinkowski@lakion.com>
  */
 class GenericApi implements ApiInterface
 {
+
+    /**
+     * @var array
+     */
+    static $formats = [
+        'json' => ['application/json', 'application/x-json'],
+    ];
+
     /**
      * @var ClientInterface $client
      */
@@ -41,22 +51,33 @@ class GenericApi implements ApiInterface
     private $apiAdapterFactory;
 
     /**
-     * @param  ClientInterface                $client
-     * @param  string                         $uri
-     * @param  null|AdapterFactoryInterface   $apiAdapterFactory
-     * @param  null|PaginatorFactoryInterface $paginatorFactory
-     * @throws \InvalidArgumentException
+     * @var JsonDecode $jsonDecoder
      */
-    public function __construct(ClientInterface $client, $uri, AdapterFactoryInterface $apiAdapterFactory = null, PaginatorFactoryInterface $paginatorFactory = null)
-    {
+    private $jsonDecoder;
+
+    /**
+     * @param ClientInterface $client
+     * @param string $uri
+     * @param null|AdapterFactoryInterface $apiAdapterFactory
+     * @param null|PaginatorFactoryInterface $paginatorFactory
+     * @param null|JsonDecode $jsonDecoder
+     */
+    public function __construct(
+        ClientInterface $client,
+        $uri,
+        AdapterFactoryInterface $apiAdapterFactory = null,
+        PaginatorFactoryInterface $paginatorFactory = null,
+        JsonDecode $jsonDecoder = null
+    ) {
         $this->setUri($uri);
         $this->client = $client;
         $this->apiAdapterFactory = $apiAdapterFactory ?: new ApiAdapterFactory($this);
         $this->paginatorFactory = $paginatorFactory ?: new PaginatorFactory();
+        $this->jsonDecoder = $jsonDecoder ?: new JsonDecode(true);
     }
 
     /**
-     * @param  string                    $uri
+     * @param  string $uri
      * @throws \InvalidArgumentException
      */
     private function setUri($uri)
@@ -71,7 +92,7 @@ class GenericApi implements ApiInterface
     }
 
     /**
-     * @param  array  $uriParameters
+     * @param  array $uriParameters
      * @return string
      */
     private function getUri(array $uriParameters = [])
@@ -85,17 +106,17 @@ class GenericApi implements ApiInterface
     }
 
     /**
-     * {@inheritdoc }
+     * {@inheritdoc}
      */
-    public function get($id, array $uriParameters = [])
+    public function get($id, array $queryParameters = [], array $uriParameters = [])
     {
-        $response = $this->client->get(sprintf('%s%s', $this->getUri($uriParameters), $id));
+        $response = $this->client->get(sprintf('%s%s', $this->getUri($uriParameters), $id), $queryParameters);
 
         return $this->responseToArray($response);
     }
 
     /**
-     * {@inheritdoc }
+     * {@inheritdoc}
      */
     public function getAll(array $queryParameters = [], array $uriParameters = [])
     {
@@ -111,7 +132,7 @@ class GenericApi implements ApiInterface
     }
 
     /**
-     * {@inheritdoc }
+     * {@inheritdoc}
      */
     public function getPaginated(array $queryParameters = [], array $uriParameters = [])
     {
@@ -124,16 +145,17 @@ class GenericApi implements ApiInterface
     }
 
     /**
-     * {@inheritdoc }
+     * {@inheritdoc}
      */
     public function createPaginator(array $queryParameters = [], array $uriParameters = [])
     {
         $queryParameters['limit'] = isset($queryParameters['limit']) ? $queryParameters['limit'] : 10;
+
         return $this->paginatorFactory->create($this->apiAdapterFactory->create(), $queryParameters, $uriParameters);
     }
 
     /**
-     * {@inheritdoc }
+     * {@inheritdoc}
      */
     public function create(array $body, array $uriParameters = [], array $files = [])
     {
@@ -143,7 +165,7 @@ class GenericApi implements ApiInterface
     }
 
     /**
-     * {@inheritdoc }
+     * {@inheritdoc}
      */
     public function update($id, array $body, array $uriParameters = [], array $files = [])
     {
@@ -158,7 +180,18 @@ class GenericApi implements ApiInterface
     }
 
     /**
-     * {@inheritdoc }
+     * {@inheritdoc}
+     */
+    public function put($id, array $body, array $uriParameters = [])
+    {
+        $uri = sprintf('%s%s', $this->getUri($uriParameters), $id);
+        $response = $this->client->put($uri, $body);
+
+        return (204 === $response->getStatusCode());
+    }
+
+    /**
+     * {@inheritdoc}
      */
     public function delete($id, array $uriParameters = [])
     {
@@ -169,11 +202,31 @@ class GenericApi implements ApiInterface
 
     private function responseToArray(ResponseInterface $response)
     {
-        $responseType = $response->getHeader('Content-Type');
-        if ((false === strpos($responseType, 'application/json')) && (false === strpos($responseType, 'application/xml'))) {
-            throw new InvalidResponseFormatException((string) $response->getBody(), $response->getStatusCode());
+        $responseType = $this->getResponseType($response);
+
+        return $this->{$responseType}((string)$response->getBody());
+    }
+
+    private function getResponseType(ResponseInterface $response)
+    {
+        $responseContentType = $response->getHeaderLine('Content-Type');
+        foreach (self::$formats as $format => $contentTypes) {
+            foreach ($contentTypes as $contentType) {
+                if (strpos($responseContentType, $contentType) !== false) {
+                    return $format;
+                }
+            }
         }
 
-        return (strpos($responseType, 'application/json') !== false) ? $response->json() : $response->xml();
+        throw new InvalidResponseFormatException((string)$response->getBody(), $response->getStatusCode());
+    }
+
+    /**
+     * @param $body
+     * @return mixed
+     */
+    private function json($body)
+    {
+        return $this->jsonDecoder->decode($body, 'json');
     }
 }
