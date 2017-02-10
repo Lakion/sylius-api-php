@@ -18,7 +18,7 @@ use CommerceGuys\Guzzle\Oauth2\GrantType\PasswordCredentials;
 use CommerceGuys\Guzzle\Oauth2\Oauth2Subscriber;
 
 $oauth2Client = new Client([
-    'base_url' => 'http://demo.sylius.org',
+    'base_url' => 'http://demo.sylius.org/api/',
 ]);
 
 $config = [
