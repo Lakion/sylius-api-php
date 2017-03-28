@@ -74,7 +74,7 @@ class GenericApi implements ApiInterface
      * @param  array  $uriParameters
      * @return string
      */
-    private function getUri(array $uriParameters = [])
+    protected function getUri(array $uriParameters = [])
     {
         $uri = $this->uri;
         foreach ($uriParameters as $uriParameterKey => $uriParameterValue) {
@@ -167,7 +167,7 @@ class GenericApi implements ApiInterface
         return (204 === $response->getStatusCode());
     }
 
-    private function responseToArray(ResponseInterface $response)
+    protected function responseToArray(ResponseInterface $response)
     {
         $responseType = $response->getHeader('Content-Type');
         if ((false === strpos($responseType, 'application/json')) && (false === strpos($responseType, 'application/xml'))) {
@@ -175,5 +175,10 @@ class GenericApi implements ApiInterface
         }
 
         return (strpos($responseType, 'application/json') !== false) ? $response->json() : $response->xml();
+    }
+
+    protected function getClient()
+    {
+        return $this->client;
     }
 }
