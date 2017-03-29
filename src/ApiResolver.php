@@ -12,6 +12,7 @@
 namespace Sylius\Api;
 
 use Sylius\Api\Map\UriMapInterface;
+use Sylius\Api\Checkout\GenericApi as CheckoutGenericApi;
 
 /**
  * @author Michał Marcinkowski <michal.marcinkowski@lakion.com>
@@ -38,6 +39,12 @@ class ApiResolver implements ApiResolverInterface
      */
     public function getApi($resource)
     {
+        if (strpos($resource, 'checkout') === 0) {
+            return new CheckoutGenericApi(
+                $this->client,
+                $this->uriMap->getUri($resource)
+            );
+        }
         return new GenericApi($this->client, $this->uriMap->getUri($resource));
     }
 }
