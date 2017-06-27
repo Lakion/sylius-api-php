@@ -12,6 +12,7 @@
 namespace spec\Sylius\Api;
 
 use GuzzleHttp\ClientInterface as GuzzleClientInterface;
+use GuzzleHttp\Promise\Promise;
 use GuzzleHttp\Psr7;
 use PhpSpec\ObjectBehavior;
 use Sylius\Api\Client;
@@ -52,52 +53,96 @@ class ClientSpec extends ObjectBehavior
         $this::createFromUrl('http://demo.sylius.org/api/')->getSchemeAndHost()->shouldReturn('http://demo.sylius.org');
     }
 
-    function it_sends_get_request_to_the_given_url(GuzzleClientInterface $httpClient)
+    function it_sends_get_request_to_the_given_url(GuzzleClientInterface $httpClient, Promise $promise)
     {
-        $httpClient->request('GET', '/uri', ['query' => []])->shouldBeCalled();
-        $this->get('/uri');
+        $response = ['foo' => 'bar'];
+        $httpClient->requestAsync('GET', '/uri', ['query' => []])->shouldBeCalled()->willReturn($promise);
+        $promise->wait()->shouldBeCalled()->willReturn($response);
+        $this->get('/uri')->shouldReturn($response);
     }
 
-    function it_sends_post_request_to_the_given_url_with_a_given_body(GuzzleClientInterface $httpClient)
+    function it_sends_async_get_requests_to_the_given_url(GuzzleClientInterface $httpClient, Promise $promise)
     {
-        $httpClient->request('POST', '/uri', ['json' => ['key' => 'value']])->shouldBeCalled();
-        $this->post('/uri', ['key' => 'value']);
+        $httpClient->requestAsync('GET', '/uri', ['query' => []])->shouldBeCalled()->willReturn($promise);
+        $this->getAsync('/uri')->shouldReturn($promise);
+    }
+
+    function it_sends_post_request_to_the_given_url_with_a_given_body(GuzzleClientInterface $httpClient, Promise $promise)
+    {
+        $response = ['foo' => 'bar'];
+        $httpClient->requestAsync('POST', '/uri', ['json' => ['key' => 'value']])->shouldBeCalled()->willReturn($promise);
+        $promise->wait()->shouldBeCalled()->willReturn($response);
+        $this->post('/uri', ['key' => 'value'])->shouldReturn($response);
+    }
+
+    function it_sends_async_post_request_to_the_given_url_with_a_given_body(GuzzleClientInterface $httpClient, Promise $promise)
+    {
+        $httpClient->requestAsync('POST', '/uri', ['json' => ['key' => 'value']])->shouldBeCalled()->willReturn($promise);
+        $this->postAsync('/uri', ['key' => 'value'])->shouldReturn($promise);
     }
 
     function it_sends_post_request_to_the_given_url_with_a_given_body_with_given_files(
-        GuzzleClientInterface $httpClient
+        GuzzleClientInterface $httpClient,
+        Promise $promise
     ) {
-        $httpClient->request('POST', '/uri', [
+        $response = ['foo' => 'bar'];
+        $httpClient->requestAsync('POST', '/uri', [
             'json' => ['key' => 'value'],
             'multipart' => [
                 ['name' => 'images[0][file]', 'contents' => 'path/to/file1.jpg'],
                 ['name' => 'images[1][file]', 'contents' => 'path/to/file2.jpg'],
             ],
-        ])->shouldBeCalled();
+        ])->shouldBeCalled()->willReturn($promise);
+
+        $promise->wait()->shouldBeCalled()->willReturn($response);
 
         $this->post(
             '/uri',
             ['key' => 'value'],
             ['images[0][file]' => 'path/to/file1.jpg', 'images[1][file]' => 'path/to/file2.jpg']
-        );
+        )->shouldReturn($response);
     }
 
-    function it_sends_patch_request_to_the_given_url_with_a_given_body(GuzzleClientInterface $httpClient)
+    function it_sends_patch_request_to_the_given_url_with_a_given_body(GuzzleClientInterface $httpClient, Promise $promise)
     {
-        $httpClient->request('PATCH', '/uri', ['json' => ['key' => 'value']])->shouldBeCalled();
-        $this->patch('/uri', ['key' => 'value']);
+        $response = ['foo' => 'bar'];
+        $httpClient->requestAsync('PATCH', '/uri', ['json' => ['key' => 'value']])->shouldBeCalled()->willReturn($promise);
+        $promise->wait()->shouldBeCalled()->willReturn($response);
+        $this->patch('/uri', ['key' => 'value'])->shouldReturn($response);
     }
 
-    function it_sends_put_request_to_the_given_url_with_a_given_body(GuzzleClientInterface $httpClient)
+    function it_sends_async_patch_request_to_the_given_url_with_a_given_body(GuzzleClientInterface $httpClient, Promise $promise)
     {
-        $httpClient->request('PUT', '/uri', ['json' => ['key' => 'value']])->shouldBeCalled();
-        $this->put('/uri', ['key' => 'value']);
+        $httpClient->requestAsync('PATCH', '/uri', ['json' => ['key' => 'value']])->shouldBeCalled()->willReturn($promise);
+        $this->patchAsync('/uri', ['key' => 'value'])->shouldReturn($promise);
     }
 
-    function it_sends_delete_request_to_the_given_url(GuzzleClientInterface $httpClient)
+    function it_sends_put_request_to_the_given_url_with_a_given_body(GuzzleClientInterface $httpClient, Promise $promise)
     {
-        $httpClient->request('DELETE', '/uri')->shouldBeCalled();
-        $this->delete('/uri');
+        $response = ['foo' => 'bar'];
+        $httpClient->requestAsync('PUT', '/uri', ['json' => ['key' => 'value']])->shouldBeCalled()->willReturn($promise);
+        $promise->wait()->shouldBeCalled()->willReturn($response);
+        $this->put('/uri', ['key' => 'value'])->shouldReturn($response);
+    }
+
+    function it_sends_async_put_request_to_the_given_url_with_a_given_body(GuzzleClientInterface $httpClient, Promise $promise)
+    {
+        $httpClient->requestAsync('PUT', '/uri', ['json' => ['key' => 'value']])->shouldBeCalled()->willReturn($promise);
+        $this->putAsync('/uri', ['key' => 'value'])->shouldReturn($promise);
+    }
+
+    function it_sends_delete_request_to_the_given_url(GuzzleClientInterface $httpClient, Promise $promise)
+    {
+        $response = ['foo' => 'bar'];
+        $httpClient->requestAsync('DELETE', '/uri')->shouldBeCalled()->willReturn($promise);
+        $promise->wait()->shouldBeCalled()->willReturn($response);
+        $this->delete('/uri')->shouldReturn($response);
+    }
+
+    function it_sends_async_delete_request_to_the_given_url(GuzzleClientInterface $httpClient, Promise $promise)
+    {
+        $httpClient->requestAsync('DELETE', '/uri')->shouldBeCalled()->willReturn($promise);
+        $this->deleteAsync('/uri')->shouldReturn($promise);
     }
 
     function it_gets_scheme_and_host()

@@ -42,7 +42,15 @@ class Client implements ClientInterface
      */
     public function get($url, array $queryParameters = [])
     {
-        return $this->httpClient->request('GET', $url, ['query' => $queryParameters]);
+        return $this->getAsync($url, $queryParameters)->wait();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getAsync($url, array $queryParameters = [])
+    {
+        return $this->httpClient->requestAsync('GET', $url, ['query' => $queryParameters]);
     }
 
     /**
@@ -50,7 +58,15 @@ class Client implements ClientInterface
      */
     public function patch($url, array $body)
     {
-        return $this->httpClient->request('PATCH', $url, ['json' => $body]);
+        return $this->patchAsync($url, $body)->wait();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function patchAsync($url, array $body)
+    {
+        return $this->httpClient->requestAsync('PATCH', $url, ['json' => $body]);
     }
 
     /**
@@ -58,7 +74,15 @@ class Client implements ClientInterface
      */
     public function put($url, array $body)
     {
-        return $this->httpClient->request('PUT', $url, ['json' => $body]);
+        return $this->putAsync($url, $body)->wait();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function putAsync($url, array $body)
+    {
+        return $this->httpClient->requestAsync('PUT', $url, ['json' => $body]);
     }
 
     /**
@@ -66,13 +90,29 @@ class Client implements ClientInterface
      */
     public function delete($url)
     {
-        return $this->httpClient->request('DELETE', $url);
+        return $this->deleteAsync($url)->wait();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function deleteAsync($url)
+    {
+        return $this->httpClient->requestAsync('DELETE', $url);
     }
 
     /**
      * {@inheritdoc}
      */
     public function post($url, $body, array $files = [])
+    {
+        return $this->postAsync($url, $body, $files)->wait();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function postAsync($url, $body, array $files = [])
     {
         $options = ['json' => $body];
         foreach ($files as $key => $filePath) {
@@ -82,7 +122,7 @@ class Client implements ClientInterface
             ];
         }
 
-        return $this->httpClient->request('POST', $url, $options);
+        return $this->httpClient->requestAsync('POST', $url, $options);
     }
 
     /**
