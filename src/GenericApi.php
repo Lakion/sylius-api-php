@@ -161,11 +161,11 @@ class GenericApi implements ApiInterface
             (new EachPromise($promises, [
                 'concurrency' => $concurrency,
                 'fulfilled' => function ($response) use (&$result) {
-                    $result = \array_merge($result, $response);
+                    $result[] = $response;
                 },
             ]))->promise()->wait();
 
-            $promise->resolve($result);
+            $promise->resolve(call_user_func_array('array_merge', $result));
         });
 
         return $promise;
