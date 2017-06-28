@@ -520,6 +520,27 @@ class GenericApiSpec extends ObjectBehavior
         $this->getAllAsync()->shouldHaveType(Promise::class);
     }
 
+    function it_gets_all_resources_when_no_results(
+        AdapterInterface $adapter,
+        PaginatorFactoryInterface $paginatorFactory,
+        PaginatorInterface $paginator
+    ) {
+        $paginatorFactory->create(
+            $adapter,
+            ['limit' => 100],
+            []
+        )->willReturn($paginator)->shouldBeCalled();
+
+        $promise = new Promise(function() use (&$promise) {
+        });
+
+        $paginator->getCurrentPageResultsAsync()->willReturn($promise);
+        $paginator->hasNextPage()->willReturn(false);
+        $paginator->nextPage()->shouldNotBeCalled();
+
+        $this->getAll()->shouldReturn([]);
+    }
+
     function it_gets_all_resources(
         AdapterInterface $adapter,
         PaginatorFactoryInterface $paginatorFactory,

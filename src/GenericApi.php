@@ -165,7 +165,11 @@ class GenericApi implements ApiInterface
                 },
             ]))->promise()->wait();
 
-            $promise->resolve(call_user_func_array('array_merge', $result));
+            $return = empty($result)
+                ? []
+                : call_user_func_array('array_merge', $result);
+
+            $promise->resolve($return);
         });
 
         return $promise;
