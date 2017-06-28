@@ -140,7 +140,7 @@ class GenericApi implements ApiInterface
     /**
      * {@inheritdoc}
      */
-    public function getAllAsync(array $queryParameters = [], array $uriParameters = [], $concurrency = 1)
+    public function getAllAsync(array $queryParameters = [], array $uriParameters = [], int $concurrency = 1)
     {
         $queryParameters['limit'] = isset($queryParameters['limit']) ? $queryParameters['limit'] : 100;
         $paginator = $this->createPaginator($queryParameters, $uriParameters);

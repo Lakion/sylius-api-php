@@ -44,9 +44,10 @@ interface ApiInterface
     /**
      * @param  array $queryParameters
      * @param  array $uriParameters
+     * @param  int   $concurrency
      * @return Promise
      */
-    public function getAllAsync(array $queryParameters = [], array $uriParameters = [], $concurrency = 1);
+    public function getAllAsync(array $queryParameters = [], array $uriParameters = [], int $concurrency = 1);
 
     /**
      * @param  array $queryParameters
