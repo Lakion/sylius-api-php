@@ -11,6 +11,8 @@
 
 namespace Sylius\Api;
 
+use GuzzleHttp\Promise\EachPromise;
+use GuzzleHttp\Promise\Promise;
 use Psr\Http\Message\ResponseInterface;
 use Sylius\Api\Factory\AdapterFactoryInterface;
 use Sylius\Api\Factory\ApiAdapterFactory;
@@ -24,7 +26,6 @@ use Symfony\Component\Serializer\Encoder\XmlEncoder;
  */
 class GenericApi implements ApiInterface
 {
-
     /**
      * @var array
      */
@@ -110,9 +111,22 @@ class GenericApi implements ApiInterface
      */
     public function get($id, array $queryParameters = [], array $uriParameters = [])
     {
-        $response = $this->client->get(sprintf('%s%s', $this->getUri($uriParameters), $id), $queryParameters);
+        return $this->getAsync($id, $queryParameters, $uriParameters)->wait();
+    }
 
-        return $this->responseToArray($response);
+    /**
+     * {@inheritdoc}
+     */
+    public function getAsync($id, array $queryParameters = [], array $uriParameters = [])
+    {
+        return $this
+            ->client
+            ->getAsync(
+                sprintf('%s%s', $this->getUri($uriParameters), $id),
+                $queryParameters
+            )->then(
+                $this->responseToArray()
+            );
     }
 
     /**
@@ -120,15 +134,41 @@ class GenericApi implements ApiInterface
      */
     public function getAll(array $queryParameters = [], array $uriParameters = [])
     {
+        return $this->getAllAsync($queryParameters, $uriParameters)->wait();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getAllAsync(array $queryParameters = [], array $uriParameters = [], $concurrency = 1)
+    {
         $queryParameters['limit'] = isset($queryParameters['limit']) ? $queryParameters['limit'] : 100;
         $paginator = $this->createPaginator($queryParameters, $uriParameters);
-        $results = $paginator->getCurrentPageResults();
-        while ($paginator->hasNextPage()) {
-            $paginator->nextPage();
-            $results = array_merge($results, $paginator->getCurrentPageResults());
-        }
 
-        return $results;
+        $promise = new Promise(function() use ($paginator, $concurrency, &$promise) {
+            $result = [];
+
+            $promises = (function () use ($paginator) {
+                yield $paginator->getCurrentPageResultsAsync();
+
+                while ($paginator->hasNextPage()) {
+                    $paginator->nextPage();
+
+                    yield $paginator->getCurrentPageResultsAsync();
+                }
+            })();
+
+            (new EachPromise($promises, [
+                'concurrency' => $concurrency,
+                'fulfilled' => function ($response) use (&$result) {
+                    $result = \array_merge($result, $response);
+                },
+            ]))->promise()->wait();
+
+            $promise->resolve($result);
+        });
+
+        return $promise;
     }
 
     /**
@@ -136,12 +176,25 @@ class GenericApi implements ApiInterface
      */
     public function getPaginated(array $queryParameters = [], array $uriParameters = [])
     {
+        return $this->getPaginatedAsync($queryParameters, $uriParameters)->wait();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getPaginatedAsync(array $queryParameters = [], array $uriParameters = [])
+    {
         $queryParameters['page'] = isset($queryParameters['page']) ? $queryParameters['page'] : 1;
         $queryParameters['limit'] = isset($queryParameters['limit']) ? $queryParameters['limit'] : 10;
 
-        $response = $this->client->get($this->getUri($uriParameters), $queryParameters);
-
-        return $this->responseToArray($response);
+        return $this
+            ->client
+            ->getAsync(
+                $this->getUri($uriParameters),
+                $queryParameters
+            )->then(
+                $this->responseToArray()
+            );
     }
 
     /**
@@ -159,9 +212,24 @@ class GenericApi implements ApiInterface
      */
     public function create(array $body, array $uriParameters = [], array $files = [])
     {
-        $response = $this->client->post($this->getUri($uriParameters), $body, $files);
+        return $this->createAsync($body, $uriParameters, $files)->wait();
+    }
 
-        return $this->responseToArray($response);
+    /**
+     * {@inheritdoc}
+     */
+    public function createAsync(array $body, array $uriParameters = [], array $files = [])
+    {
+        return $this
+            ->client
+            ->postAsync(
+                $this->getUri($uriParameters),
+                $body,
+                $files
+            )
+            ->then(
+                $this->responseToArray()
+            );
     }
 
     /**
@@ -169,14 +237,27 @@ class GenericApi implements ApiInterface
      */
     public function update($id, array $body, array $uriParameters = [], array $files = [])
     {
+        return $this->updateAsync($id, $body, $uriParameters, $files)->wait();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function updateAsync($id, array $body, array $uriParameters = [], array $files = [])
+    {
         $uri = sprintf('%s%s', $this->getUri($uriParameters), $id);
+
         if (empty($files)) {
-            $response = $this->client->patch($uri, $body);
-        } else {
-            $response = $this->client->post($uri, $body, $files);
+            return $this
+                ->client
+                ->patchAsync($uri, $body)
+                ->then($this->isNoContent());
         }
 
-        return (204 === $response->getStatusCode());
+        return $this
+            ->client
+            ->postAsync($uri, $body, $files)
+            ->then($this->isNoContent());
     }
 
     /**
@@ -184,10 +265,20 @@ class GenericApi implements ApiInterface
      */
     public function put($id, array $body, array $uriParameters = [])
     {
-        $uri = sprintf('%s%s', $this->getUri($uriParameters), $id);
-        $response = $this->client->put($uri, $body);
+        return $this->putAsync($id, $body, $uriParameters)->wait();
+    }
 
-        return (204 === $response->getStatusCode());
+    /**
+     * {@inheritdoc}
+     */
+    public function putAsync($id, array $body, array $uriParameters = [])
+    {
+        $uri = sprintf('%s%s', $this->getUri($uriParameters), $id);
+
+        return $this
+            ->client
+            ->putAsync($uri, $body)
+            ->then($this->isNoContent());
     }
 
     /**
@@ -195,18 +286,46 @@ class GenericApi implements ApiInterface
      */
     public function delete($id, array $uriParameters = [])
     {
-        $response = $this->client->delete(sprintf('%s%s', $this->getUri($uriParameters), $id));
-
-        return (204 === $response->getStatusCode());
+        return $this->deleteAsync($id, $uriParameters)->wait();
     }
 
-    private function responseToArray(ResponseInterface $response)
+    /**
+     * {@inheritdoc}
+     */
+    public function deleteAsync($id, array $uriParameters = [])
     {
-        $responseType = $this->getResponseType($response);
-
-        return $this->{$responseType}((string)$response->getBody());
+        return $this
+            ->client
+            ->deleteAsync(sprintf('%s%s', $this->getUri($uriParameters), $id))
+            ->then($this->isNoContent());
     }
 
+    /**
+     * @return \Closure
+     */
+    private function isNoContent()
+    {
+        return function ($response) {
+            return (204 === $response->getStatusCode());
+        };
+    }
+
+    /**
+     * @return \Closure
+     */
+    private function responseToArray()
+    {
+        return function (ResponseInterface $response) {
+            $responseType = $this->getResponseType($response);
+
+            return $this->{$responseType}((string)$response->getBody());
+        };
+    }
+
+    /**
+     * @param ResponseInterface $response
+     * @return string
+     */
     private function getResponseType(ResponseInterface $response)
     {
         $responseContentType = $response->getHeaderLine('Content-Type');

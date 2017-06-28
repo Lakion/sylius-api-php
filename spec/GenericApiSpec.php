@@ -11,7 +11,10 @@
 
 namespace spec\Sylius\Api;
 
+use GuzzleHttp\Promise\Promise;
+use GuzzleHttp\Promise\PromiseInterface;
 use PhpSpec\ObjectBehavior;
+use Prophecy\Argument;
 use Psr\Http\Message\ResponseInterface;
 use Sylius\Api\AdapterInterface;
 use Sylius\Api\ApiInterface;
@@ -67,15 +70,26 @@ class GenericApiSpec extends ObjectBehavior
         $this->shouldImplement(ApiInterface::class);
     }
 
-    function it_gets_resource_by_id($client, ResponseInterface $response, JsonDecode $jsonDecoder)
+    function it_gets_resource_by_id_async($client, JsonDecode $jsonDecoder, Promise $promise)
+    {
+        $client->getAsync('uri/1', [])->shouldBeCalled()->willReturn($promise);
+
+        $promise->then(Argument::type('callable'))->willReturn($promise);
+
+        $this->getAsync(1)->shouldReturn($promise);
+    }
+
+    function it_gets_resource_by_id($client, JsonDecode $jsonDecoder, Promise $promise)
     {
         $return = ['id' => 1, 'name' => 'Resource name'];
-        $json = json_encode($return);
 
-        $response->getHeaderLine('Content-Type')->willReturn('application/json');
-        $response->getBody()->willReturn($json);
-        $jsonDecoder->decode($json, 'json')->shouldBeCalled()->willReturn($return);
-        $client->get('uri/1', [])->willReturn($response)->shouldBeCalled();
+        $client->getAsync(
+            'uri/1',
+            []
+        )->shouldBeCalled()->willReturn($promise);
+
+        $promise->wait()->shouldBeCalled()->willReturn($return);
+        $promise->then(Argument::type('callable'))->willReturn($promise);
 
         $this->get(1)->shouldReturn($return);
     }
@@ -84,28 +98,34 @@ class GenericApiSpec extends ObjectBehavior
         $client,
         $adapterFactory,
         $paginatorFactory,
-        ResponseInterface $response,
-        JsonDecode $jsonDecoder
+        JsonDecode $jsonDecoder,
+        Promise $promise
     ) {
         $this->beConstructedWith($client, 'parentUri/{parentId}/uri', $adapterFactory, $paginatorFactory, $jsonDecoder);
 
         $return = ['id' => 1, 'name' => 'Resource name'];
-        $json = json_encode($return);
 
-        $response->getHeaderLine('Content-Type')->willReturn('application/json');
-        $response->getBody()->willReturn($json);
-        $jsonDecoder->decode($json, 'json')->shouldBeCalled()->willReturn($return);
-        $client->get('parentUri/2/uri/1', [])->willReturn($response)->shouldBeCalled();
+        $client->getAsync(
+            'parentUri/2/uri/1',
+            []
+        )->willReturn($promise)->shouldBeCalled();
 
-        $this->get(1, [], ['parentId' => 2])->shouldReturn($return);
+        $promise->wait()->shouldBeCalled()->willReturn($return);
+        $promise->then(Argument::type('callable'))->willReturn($promise);
+
+        $this->get(
+            1,
+            [],
+            ['parentId' => 2]
+        )->shouldReturn($return);
     }
 
     function it_gets_resource_by_id_for_a_specific_uri_with_multiple_uri_parameters(
         $client,
         $adapterFactory,
         $paginatorFactory,
-        ResponseInterface $response,
-        JsonDecode $jsonDecoder
+        JsonDecode $jsonDecoder,
+        Promise $promise
     ) {
         $this->beConstructedWith(
             $client,
@@ -116,106 +136,163 @@ class GenericApiSpec extends ObjectBehavior
         );
 
         $return = ['id' => 1, 'name' => 'Resource name'];
-        $json = json_encode($return);
 
-        $response->getHeaderLine('Content-Type')->willReturn('application/json');
-        $response->getBody()->willReturn($json);
-        $jsonDecoder->decode($json, 'json')->shouldBeCalled()->willReturn($return);
-        $client->get('parentUri/2/secondParentUri/1/uri/1', [])->willReturn($response)->shouldBeCalled();
+        $client->getAsync(
+            'parentUri/2/secondParentUri/1/uri/1',
+            []
+        )->willReturn($promise)->shouldBeCalled();
 
-        $this->get(1, [], ['parentId' => 2, 'secondParentId' => 1])->shouldReturn($return);
+        $promise->wait()->shouldBeCalled()->willReturn($return);
+        $promise->then(Argument::type('callable'))->willReturn($promise);
+
+        $this->get(
+            1,
+            [],
+            ['parentId' => 2, 'secondParentId' => 1]
+        )->shouldReturn($return);
     }
 
-    function it_gets_resource_by_id_with_query_parameters($client, ResponseInterface $response, JsonDecode $jsonDecoder)
+    function it_gets_resource_by_id_with_query_parameters($client, ResponseInterface $response, JsonDecode $jsonDecoder, Promise $promise)
     {
         $return = ['id' => 1, 'name' => 'Resource name'];
-        $json = json_encode($return);
 
-        $response->getHeaderLine('Content-Type')->willReturn('application/json');
-        $response->getBody()->willReturn($json);
-        $jsonDecoder->decode($json, 'json')->shouldBeCalled()->willReturn($return);
-        $client->get('uri/1', ['foo' => 'bar'])->willReturn($response)->shouldBeCalled();
+        $client->getAsync(
+            'uri/1',
+            ['foo' => 'bar']
+        )->willReturn($promise)->shouldBeCalled();
 
-        $this->get(1, ['foo' => 'bar'])->shouldReturn($return);
+        $promise->wait()->shouldBeCalled()->willReturn($return);
+        $promise->then(Argument::type('callable'))->willReturn($promise);
+
+        $this->get(
+            1,
+            ['foo' => 'bar']
+        )->shouldReturn($return);
     }
 
-    function it_gets_paginated_resources($client, ResponseInterface $response, JsonDecode $jsonDecoder)
+    function it_gets_paginated_resources($client, ResponseInterface $response, JsonDecode $jsonDecoder, Promise $promise)
     {
         $return = ['a', 'b', 'c'];
-        $json = json_encode($return);
 
-        $response->getHeaderLine('Content-Type')->willReturn('application/json');
-        $response->getBody()->willReturn($json);
-        $jsonDecoder->decode($json, 'json')->shouldBeCalled()->willReturn($return);
-        $client->get('uri/', ['page' => 1, 'limit' => 10])->willReturn($response)->shouldBeCalled();
+        $client->getAsync(
+            'uri/',
+            ['page' => 1, 'limit' => 10]
+        )->willReturn($promise)->shouldBeCalled();
+
+        $promise->wait()->shouldBeCalled()->willReturn($return);
+        $promise->then(Argument::type('callable'))->willReturn($promise);
 
         $this->getPaginated()->shouldReturn(['a', 'b', 'c']);
     }
 
-    function it_gets_paginated_resources_by_page($client, ResponseInterface $response, JsonDecode $jsonDecoder)
+    function it_gets_paginated_resources_async($client, JsonDecode $jsonDecoder, Promise $promise)
+    {
+        $client->getAsync(
+            'uri/',
+            ['page' => 1, 'limit' => 10]
+        )->willReturn($promise)->shouldBeCalled();
+
+        $promise->then(Argument::type('callable'))->willReturn($promise);
+
+        $this->getPaginatedAsync()->shouldReturn($promise);
+    }
+
+    function it_gets_paginated_resources_by_page($client, JsonDecode $jsonDecoder, Promise $promise)
     {
         $return = ['a', 'b', 'c'];
-        $json = json_encode($return);
 
-        $response->getHeaderLine('Content-Type')->willReturn('application/json');
-        $response->getBody()->willReturn($json);
-        $jsonDecoder->decode($json, 'json')->shouldBeCalled()->willReturn($return);
-        $client->get('uri/', ['page' => 3, 'limit' => 10])->willReturn($response)->shouldBeCalled();
+        $client->getAsync(
+            'uri/',
+            ['page' => 3, 'limit' => 10]
+        )->willReturn($promise)->shouldBeCalled();
 
-        $this->getPaginated(['page' => 3])->shouldReturn($return);
+        $promise->wait()->shouldBeCalled()->willReturn($return);
+        $promise->then(Argument::type('callable'))->willReturn($promise);
+
+        $this->getPaginated(
+            ['page' => 3]
+        )->shouldReturn($return);
     }
 
     function it_gets_paginated_resources_by_page_with_limit(
         $client,
-        ResponseInterface $response,
-        JsonDecode $jsonDecoder
+        JsonDecode $jsonDecoder,
+        Promise $promise
     ) {
         $return = ['a', 'b', 'c'];
-        $json = json_encode($return);
 
-        $response->getHeaderLine('Content-Type')->willReturn('application/json');
-        $response->getBody()->willReturn($json);
-        $jsonDecoder->decode($json, 'json')->shouldBeCalled()->willReturn($return);
-        $client->get('uri/', ['page' => 2, 'limit' => 15])->willReturn($response)->shouldBeCalled();
+        $client->getAsync(
+            'uri/',
+            ['page' => 2, 'limit' => 15]
+        )->willReturn($promise)->shouldBeCalled();
 
-        $this->getPaginated(['page' => 2, 'limit' => 15])->shouldReturn($return);
+        $promise->wait()->shouldBeCalled()->willReturn($return);
+        $promise->then(Argument::type('callable'))->willReturn($promise);
+
+        $this->getPaginated(
+            ['page' => 2, 'limit' => 15]
+        )->shouldReturn($return);
     }
 
     function it_gets_paginated_resources_by_page_with_limit_for_a_specific_uri_with_uri_parameters(
         $client,
         $adapterFactory,
         $paginatorFactory,
-        ResponseInterface $response,
-        JsonDecode $jsonDecoder
+        JsonDecode $jsonDecoder,
+        Promise $promise
     ) {
         $this->beConstructedWith($client, 'parentUri/{parentId}/uri', $adapterFactory, $paginatorFactory, $jsonDecoder);
 
         $return = ['a', 'b', 'c'];
-        $json = json_encode($return);
 
-        $response->getHeaderLine('Content-Type')->willReturn('application/json');
-        $response->getBody()->willReturn($json);
-        $jsonDecoder->decode($json, 'json')->shouldBeCalled()->willReturn($return);
-        $client->get('parentUri/1/uri/', ['page' => 2, 'limit' => 15])->willReturn($response)->shouldBeCalled();
+        $client->getAsync(
+            'parentUri/1/uri/',
+            ['page' => 2, 'limit' => 15]
+        )->willReturn($promise)->shouldBeCalled();
 
-        $this->getPaginated(['page' => 2, 'limit' => 15], ['parentId' => 1])->shouldReturn($return);
+        $promise->wait()->shouldBeCalled()->willReturn($return);
+        $promise->then(Argument::type('callable'))->willReturn($promise);
+
+        $this->getPaginated(
+            ['page' => 2, 'limit' => 15],
+            ['parentId' => 1]
+        )->shouldReturn($return);
     }
 
-    function it_creates_resource_with_body($client, ResponseInterface $response, JsonDecode $jsonDecoder)
+    function it_creates_resource_with_body_async($client, JsonDecode $jsonDecoder, Promise $promise)
+    {
+        $client->postAsync(
+            'uri/',
+            ['field1' => 'field1Value', 'field2' => 'field2Value'],
+            []
+        )->willReturn($promise)->shouldBeCalled();
+
+        $promise->then(Argument::type('callable'))->willReturn($promise);
+
+        $this->createAsync(
+            ['field1' => 'field1Value', 'field2' => 'field2Value']
+        )->shouldReturn($promise);
+    }
+
+    function it_creates_resource_with_body($client, JsonDecode $jsonDecoder, Promise $promise)
     {
         $return = ['id' => 1, 'field1' => 'field1Value', 'field2' => 'field2Value'];
-        $json = json_encode($return);
 
-        $response->getHeaderLine('Content-Type')->willReturn('application/json');
-        $response->getBody()->willReturn($json);
-        $jsonDecoder->decode($json, 'json')->shouldBeCalled()->willReturn($return);
-        $client->post('uri/', ['field1' => 'field1Value', 'field2' => 'field2Value'], [])
-            ->willReturn($response)->shouldBeCalled();
+        $client->postAsync(
+            'uri/',
+            ['field1' => 'field1Value', 'field2' => 'field2Value'],
+            []
+        )->willReturn($promise)->shouldBeCalled();
 
-        $this->create(['field1' => 'field1Value', 'field2' => 'field2Value'])->shouldReturn($return);
+        $promise->wait()->shouldBeCalled()->willReturn($return);
+        $promise->then(Argument::type('callable'))->willReturn($promise);
+
+        $this->create(
+            ['field1' => 'field1Value', 'field2' => 'field2Value']
+        )->shouldReturn($return);
     }
 
-    function it_creates_resource_with_body_and_files($client, ResponseInterface $response, JsonDecode $jsonDecoder)
+    function it_creates_resource_with_body_and_files($client, JsonDecode $jsonDecoder, Promise $promise)
     {
         $return = [
             'id' => 1,
@@ -223,99 +300,181 @@ class GenericApiSpec extends ObjectBehavior
             'field2' => 'field2Value',
             'images[0][file]' => 'path/to/file1.jpg',
         ];
-        $json = json_encode($return);
 
-        $response->getHeaderLine('Content-Type')->willReturn('application/json');
-        $response->getBody()->willReturn($json);
-        $jsonDecoder->decode($json, 'json')->shouldBeCalled()->willReturn($return);
+        $client->postAsync(
+            'uri/',
+            ['field1' => 'field1Value', 'field2' => 'field2Value'],
+            ['images[0][file]' => 'path/to/file1.jpg']
+        )->willReturn($promise)->shouldBeCalled();
 
-        $client->post('uri/', ['field1' => 'field1Value', 'field2' => 'field2Value'],
-            ['images[0][file]' => 'path/to/file1.jpg'])
-            ->willReturn($response)->shouldBeCalled();
+        $promise->wait()->shouldBeCalled()->willReturn($return);
+        $promise->then(Argument::type('callable'))->willReturn($promise);
 
-        $this->create(['field1' => 'field1Value', 'field2' => 'field2Value'], [],
-            ['images[0][file]' => 'path/to/file1.jpg'])
-            ->shouldReturn($return);
+        $this->create(
+            ['field1' => 'field1Value', 'field2' => 'field2Value'],
+            [],
+            ['images[0][file]' => 'path/to/file1.jpg']
+        )->shouldReturn($return);
     }
 
     function it_creates_resource_with_body_for_a_specific_uri_with_uri_parameters(
         $client,
         $adapterFactory,
         $paginatorFactory,
-        ResponseInterface $response,
-        JsonDecode $jsonDecoder
+        JsonDecode $jsonDecoder,
+        Promise $promise
     ) {
         $return = ['id' => 1, 'field1' => 'field1Value', 'field2' => 'field2Value'];
-        $json = json_encode($return);
 
         $this->beConstructedWith($client, 'parentUri/{parentId}/uri', $adapterFactory, $paginatorFactory, $jsonDecoder);
 
-        $response->getHeaderLine('Content-Type')->willReturn('application/json');
-        $response->getBody()->willReturn($json);
-        $jsonDecoder->decode($json, 'json')->shouldBeCalled()->willReturn($return);
-        $client->post('parentUri/2/uri/', ['field1' => 'field1Value', 'field2' => 'field2Value'], [])
-            ->willReturn($response)->shouldBeCalled();
+        $client->postAsync(
+            'parentUri/2/uri/',
+            ['field1' => 'field1Value', 'field2' => 'field2Value'],
+            []
+        )->willReturn($promise)->shouldBeCalled();
 
-        $this->create(['field1' => 'field1Value', 'field2' => 'field2Value'], ['parentId' => 2])
-            ->shouldReturn($return);
+        $promise->wait()->shouldBeCalled()->willReturn($return);
+        $promise->then(Argument::type('callable'))->willReturn($promise);
+
+        $this->create(
+            ['field1' => 'field1Value', 'field2' => 'field2Value'],
+            ['parentId' => 2]
+        )->shouldReturn($return);
     }
 
-    function it_updates_resource_with_body($client, ResponseInterface $response)
+    function it_updates_resource_with_body_async($client, ResponseInterface $response, Promise $promise)
     {
-        $response->getStatusCode()->willReturn(204);
-        $client->patch('uri/1', ['field1' => 'field1Value', 'field2' => 'field2Value'])
-            ->willReturn($response)->shouldBeCalled();
+        $client->patchAsync(
+            'uri/1',
+            ['field1' => 'field1Value', 'field2' => 'field2Value']
+        )->willReturn($promise)->shouldBeCalled();
 
-        $this->update(1, ['field1' => 'field1Value', 'field2' => 'field2Value'])->shouldReturn(true);
+        $promise->then(Argument::type('callable'))->willReturn($promise);
+
+        $this->updateAsync(
+            1,
+            ['field1' => 'field1Value', 'field2' => 'field2Value']
+        )->shouldReturn($promise);
     }
 
-    function it_puts_resource_with_body($client, ResponseInterface $response)
+    function it_updates_resource_with_body($client, Promise $promise)
     {
-        $response->getStatusCode()->willReturn(204);
-        $client->put('uri/1', ['field1' => 'field1Value', 'field2' => 'field2Value'])
-            ->willReturn($response)->shouldBeCalled();
+        $client->patchAsync(
+            'uri/1',
+            ['field1' => 'field1Value', 'field2' => 'field2Value']
+        )->willReturn($promise)->shouldBeCalled();
 
-        $this->put(1, ['field1' => 'field1Value', 'field2' => 'field2Value'])->shouldReturn(true);
+        $promise->wait()->shouldBeCalled()->willReturn(true);
+        $promise->then(Argument::type('callable'))->willReturn($promise);
+
+        $this->update(
+            1,
+            ['field1' => 'field1Value', 'field2' => 'field2Value']
+        )->shouldReturn(true);
     }
 
-    function it_updates_resource_with_body_and_files($client, ResponseInterface $response)
+    function it_puts_resource_with_body_async($client, Promise $promise)
     {
-        $response->getStatusCode()->willReturn(204);
-        $client->post('uri/1', ['field1' => 'field1Value', 'field2' => 'field2Value'],
-            ['images[0][file]' => 'path/to/file1.jpg'])
-            ->willReturn($response)->shouldBeCalled();
+        $client->putAsync(
+            'uri/1',
+            ['field1' => 'field1Value', 'field2' => 'field2Value']
+        )->willReturn($promise)->shouldBeCalled();
 
-        $this->update(1, ['field1' => 'field1Value', 'field2' => 'field2Value'], [],
-            ['images[0][file]' => 'path/to/file1.jpg'])->shouldReturn(true);
+        $promise->then(Argument::type('callable'))->willReturn($promise);
+
+        $this->putAsync(
+            1,
+            ['field1' => 'field1Value', 'field2' => 'field2Value']
+        )->shouldReturn($promise);
+    }
+
+    function it_puts_resource_with_body($client, Promise $promise)
+    {
+        $client->putAsync(
+            'uri/1',
+            ['field1' => 'field1Value', 'field2' => 'field2Value']
+        )->willReturn($promise)->shouldBeCalled();
+
+        $promise->wait()->shouldBeCalled()->willReturn(true);
+        $promise->then(Argument::type('callable'))->willReturn($promise);
+
+        $this->put(
+            1,
+            ['field1' => 'field1Value', 'field2' => 'field2Value']
+        )->shouldReturn(true);
+    }
+
+    function it_updates_resource_with_body_and_files($client, Promise $promise)
+    {
+        $client->postAsync(
+            'uri/1',
+            ['field1' => 'field1Value', 'field2' => 'field2Value'],
+            ['images[0][file]' => 'path/to/file1.jpg']
+        )->willReturn($promise)->shouldBeCalled();
+
+        $promise->wait()->shouldBeCalled()->willReturn(true);
+        $promise->then(Argument::type('callable'))->willReturn($promise);
+
+        $this->update(
+            1,
+            ['field1' => 'field1Value', 'field2' => 'field2Value'],
+            [],
+            ['images[0][file]' => 'path/to/file1.jpg']
+        )->shouldReturn(true);
     }
 
     function it_updates_resource_with_body_for_a_specific_uri_with_uri_parameters(
         $client,
         $adapterFactory,
         $paginatorFactory,
-        ResponseInterface $response
+        Promise $promise
     ) {
         $this->beConstructedWith($client, 'parentUri/{parentId}/uri', $adapterFactory, $paginatorFactory);
-        $response->getStatusCode()->willReturn(204);
-        $client->patch('parentUri/1/uri/2', ['field1' => 'field1Value', 'field2' => 'field2Value'])
-            ->willReturn($response)->shouldBeCalled();
 
-        $this->update(2, ['field1' => 'field1Value', 'field2' => 'field2Value'], ['parentId' => 1])->shouldReturn(true);
+        $client
+            ->patchAsync('parentUri/1/uri/2', ['field1' => 'field1Value', 'field2' => 'field2Value'])
+            ->willReturn($promise)->shouldBeCalled();
+
+        $promise->wait()->shouldBeCalled()->willReturn(true);
+        $promise->then(Argument::type('callable'))->willReturn($promise);
+
+        $this->update(
+            2,
+            ['field1' => 'field1Value', 'field2' => 'field2Value'],
+            ['parentId' => 1]
+        )->shouldReturn(true);
     }
 
-    function it_returns_false_if_resource_update_was_not_successful($client, ResponseInterface $response)
+    function it_returns_false_if_resource_update_was_not_successful($client, Promise $promise)
     {
-        $response->getStatusCode()->willReturn(400);
-        $client->patch('uri/1',
-            ['field1' => 'field1Value', 'field2' => 'field2Value'])->willReturn($response)->shouldBeCalled();
+        $client->patchAsync(
+            'uri/1',
+            ['field1' => 'field1Value', 'field2' => 'field2Value']
+        )->willReturn($promise)->shouldBeCalled();
 
-        $this->update(1, ['field1' => 'field1Value', 'field2' => 'field2Value'])->shouldReturn(false);
+        $promise->wait()->shouldBeCalled()->willReturn(false);
+        $promise->then(Argument::type('callable'))->willReturn($promise);
+
+        $this->update(
+            1,
+            ['field1' => 'field1Value', 'field2' => 'field2Value']
+        )->shouldReturn(false);
     }
 
-    function it_deletes_resource_by_id($client, ResponseInterface $response)
+    function it_deletes_resource_by_id_async($client, Promise $promise)
     {
-        $response->getStatusCode()->willReturn(204);
-        $client->delete('uri/1')->willReturn($response)->shouldBeCalled();
+        $client->deleteAsync('uri/1')->willReturn($promise)->shouldBeCalled();
+        $promise->then(Argument::type('callable'))->willReturn($promise);
+
+        $this->deleteAsync(1)->shouldReturn($promise);
+    }
+
+    function it_deletes_resource_by_id($client, Promise $promise)
+    {
+        $client->deleteAsync('uri/1')->willReturn($promise)->shouldBeCalled();
+        $promise->wait()->shouldBeCalled()->willReturn(true);
+        $promise->then(Argument::type('callable'))->willReturn($promise);
 
         $this->delete(1)->shouldReturn(true);
     }
@@ -324,37 +483,85 @@ class GenericApiSpec extends ObjectBehavior
         $client,
         $adapterFactory,
         $paginatorFactory,
-        ResponseInterface $response
+        Promise $promise
     ) {
         $this->beConstructedWith($client, 'parentUri/{parentId}/uri', $adapterFactory, $paginatorFactory);
-        $response->getStatusCode()->willReturn(204);
-        $client->delete('parentUri/1/uri/2')->willReturn($response)->shouldBeCalled();
+
+        $client->deleteAsync('parentUri/1/uri/2')->willReturn($promise)->shouldBeCalled();
+
+        $promise->wait()->shouldBeCalled()->willReturn(true);
+        $promise->then(Argument::type('callable'))->willReturn($promise);
 
         $this->delete(2, ['parentId' => 1])->shouldReturn(true);
     }
 
-    function it_returns_false_if_resource_deletion_was_not_successful($client, ResponseInterface $response)
+    function it_returns_false_if_resource_deletion_was_not_successful($client, Promise $promise)
     {
-        $response->getStatusCode()->willReturn(400);
-        $client->delete('uri/1')->willReturn($response)->shouldBeCalled();
+        $client->deleteAsync('uri/1')->willReturn($promise)->shouldBeCalled();
+
+        $promise->wait()->shouldBeCalled()->willReturn(false);
+        $promise->then(Argument::type('callable'))->willReturn($promise);
 
         $this->delete(1)->shouldReturn(false);
     }
 
-    function it_gets_all_resources($adapter, $paginatorFactory, PaginatorInterface $paginator)
-    {
-        $paginatorFactory->create($adapter, ['limit' => 100], [])->willReturn($paginator)->shouldBeCalled();
-        $paginator->getCurrentPageResults()->willReturn(['a', 'b', 'c']);
+    function it_gets_all_resources_async(
+        AdapterInterface $adapter,
+        PaginatorFactoryInterface $paginatorFactory,
+        PaginatorInterface $paginator,
+        Promise $promise
+    ) {
+        $paginatorFactory->create(
+            $adapter,
+            ['limit' => 100],
+            []
+        )->willReturn($paginator)->shouldBeCalled();
+
+        $this->getAllAsync()->shouldHaveType(Promise::class);
+    }
+
+    function it_gets_all_resources(
+        AdapterInterface $adapter,
+        PaginatorFactoryInterface $paginatorFactory,
+        PaginatorInterface $paginator
+    ) {
+        $paginatorFactory->create(
+            $adapter,
+            ['limit' => 100],
+            []
+        )->willReturn($paginator)->shouldBeCalled();
+
+        $promise = new Promise(function() use (&$promise) {
+            $promise->resolve(['a', 'b', 'c']);
+        });
+
+        $paginator->getCurrentPageResultsAsync()->willReturn($promise);
         $paginator->hasNextPage()->willReturn(false);
         $paginator->nextPage()->shouldNotBeCalled();
 
         $this->getAll()->shouldReturn(['a', 'b', 'c']);
     }
 
-    function it_gets_all_resources_with_few_pages($adapter, $paginatorFactory, PaginatorInterface $paginator)
-    {
-        $paginatorFactory->create($adapter, ['limit' => 2], [])->willReturn($paginator)->shouldBeCalled();
-        $paginator->getCurrentPageResults()->willReturn(['a', 'b'], ['c']);
+    function it_gets_all_resources_with_few_pages(
+        AdapterInterface $adapter,
+        PaginatorFactoryInterface $paginatorFactory,
+        PaginatorInterface $paginator
+    ) {
+        $paginatorFactory->create(
+            $adapter,
+            ['limit' => 2],
+            []
+        )->willReturn($paginator)->shouldBeCalled();
+
+        $promiseOne = new Promise(function() use (&$promiseOne) {
+            $promiseOne->resolve(['a', 'b']);
+        });
+
+        $promiseTwo = new Promise(function() use (&$promiseTwo) {
+            $promiseTwo->resolve(['c']);
+        });
+
+        $paginator->getCurrentPageResultsAsync()->willReturn($promiseOne, $promiseTwo);
         $paginator->hasNextPage()->willReturn(true, false);
         $paginator->nextPage()->shouldBeCalledTimes(1);
 
@@ -362,16 +569,25 @@ class GenericApiSpec extends ObjectBehavior
     }
 
     function it_gets_all_resources_for_a_specific_uri_with_uri_parameters(
-        $adapter,
-        $client,
-        $adapterFactory,
-        $paginatorFactory,
+        AdapterInterface $adapter,
+        ClientInterface $client,
+        AdapterFactoryInterface $adapterFactory,
+        PaginatorFactoryInterface $paginatorFactory,
         PaginatorInterface $paginator
     ) {
         $this->beConstructedWith($client, 'parentUri/{parentId}/uri', $adapterFactory, $paginatorFactory);
-        $paginatorFactory->create($adapter, ['limit' => 100],
-            ['parentId' => 1])->willReturn($paginator)->shouldBeCalled();
-        $paginator->getCurrentPageResults()->willReturn(['a', 'b', 'c']);
+
+        $paginatorFactory->create(
+            $adapter,
+            ['limit' => 100],
+            ['parentId' => 1]
+        )->willReturn($paginator)->shouldBeCalled();
+
+        $promise = new Promise(function () use (&$promise) {
+            $promise->resolve(['a', 'b', 'c']);
+        });
+
+        $paginator->getCurrentPageResultsAsync()->willReturn($promise);
         $paginator->hasNextPage()->willReturn(false);
 
         $this->getAll([], ['parentId' => 1])->shouldReturn(['a', 'b', 'c']);
@@ -379,23 +595,35 @@ class GenericApiSpec extends ObjectBehavior
 
     function it_creates_paginator_with_defined_limit($adapter, $paginatorFactory, PaginatorInterface $paginator)
     {
-        $paginatorFactory->create($adapter, ['limit' => 15], [])->willReturn($paginator)->shouldBeCalled();
+        $paginatorFactory->create(
+            $adapter,
+            ['limit' => 15],
+            []
+        )->willReturn($paginator)->shouldBeCalled();
+
         $this->createPaginator(['limit' => 15])->shouldReturn($paginator);
     }
 
     function it_creates_paginator_with_default_limit($adapter, $paginatorFactory, PaginatorInterface $paginator)
     {
-        $paginatorFactory->create($adapter, ['limit' => 10], [])->willReturn($paginator)->shouldBeCalled();
+        $paginatorFactory->create(
+            $adapter,
+            ['limit' => 10],
+            []
+        )->willReturn($paginator)->shouldBeCalled();
+
         $this->createPaginator()->shouldReturn($paginator);
     }
 
-    function it_throws_exception_when_invalid_response_format_is_received($client, ResponseInterface $response)
+    function it_throws_exception_when_invalid_response_format_is_received($client, Promise $promise)
     {
-        $response->getHeaderLine('Content-Type')->willReturn('application/xhtml+xml');
-        $response->getBody()->willReturn('json');
-        $response->getStatusCode()->willReturn(400);
-        $client->get('uri/1', [])->willReturn($response)->shouldBeCalled();
+        $exception = new InvalidResponseFormatException('json', 400);
 
-        $this->shouldThrow(new InvalidResponseFormatException('json', 400))->during('get', [1]);
+        $client->getAsync('uri/1', [])->shouldBeCalled()->willReturn($promise);
+
+        $promise->wait()->shouldBeCalled()->willThrow($exception);
+        $promise->then(Argument::type('callable'))->willReturn($promise);
+
+        $this->shouldThrow($exception)->during('get', [1]);
     }
 }

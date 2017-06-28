@@ -57,9 +57,14 @@ class Paginator implements PaginatorInterface
 
     public function getCurrentPageResults()
     {
+        return $this->getCurrentPageResultsAsync()->wait();
+    }
+
+    public function getCurrentPageResultsAsync()
+    {
         if (!$this->isResultCached()) {
             $this->queryParameters['page'] = $this->currentPage;
-            $this->currentResults = $this->adapter->getResults($this->queryParameters, $this->uriParameters);
+            $this->currentResults = $this->adapter->getResultsAsync($this->queryParameters, $this->uriParameters);
         }
 
         return $this->currentResults;
