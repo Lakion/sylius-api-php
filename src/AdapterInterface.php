@@ -31,4 +31,12 @@ interface AdapterInterface
      * @return array
      */
     public function getResults(array $queryParameters, array $uriParameters = []);
+
+    /**
+     * @param  array $queryParameters
+     * @param  array $uriParameters
+     *
+     * @return Promise
+     */
+    public function getResultsAsync(array $queryParameters, array $uriParameters = []);
 }

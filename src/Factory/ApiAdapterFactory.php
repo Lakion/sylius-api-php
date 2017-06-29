@@ -30,7 +30,7 @@ class ApiAdapterFactory implements AdapterFactoryInterface
     }
 
     /**
-     * {@inheritdoc }
+     * {@inheritdoc}
      */
     public function create()
     {

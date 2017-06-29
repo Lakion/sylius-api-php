@@ -11,6 +11,8 @@
 
 namespace Sylius\Api;
 
+use GuzzleHttp\Promise\Promise;
+
 /**
  * @author Michał Marcinkowski <michal.marcinkowski@lakion.com>
  */
@@ -25,6 +27,11 @@ interface PaginatorInterface
      * @return array
      */
     public function getCurrentPageResults();
+
+    /**
+     * @return Promise
+     */
+    public function getCurrentPageResultsAsync();
 
     /**
      * @return int

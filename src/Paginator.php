@@ -35,11 +35,15 @@ class Paginator implements PaginatorInterface
 
     /**
      * @param AdapterInterface $adapter
-     * @param array            $queryParameters
-     * @param array            $uriParameters
+     * @param array $queryParameters
+     * @param array $uriParameters
      */
     public function __construct(AdapterInterface $adapter, array $queryParameters = [], array $uriParameters = [])
     {
+        $this->currentPage = isset($queryParameters['page']) ? $queryParameters['page'] : $this->currentPage;
+        if (!is_int($this->currentPage)) {
+            throw new \InvalidArgumentException('Page number must an integer!');
+        }
         $queryParameters['limit'] = isset($queryParameters['limit']) ? $queryParameters['limit'] : 10;
         if (!is_int($queryParameters['limit'])) {
             throw new \InvalidArgumentException('Page limit must an integer!');
@@ -48,14 +52,19 @@ class Paginator implements PaginatorInterface
         $this->queryParameters = $queryParameters;
         $this->queryParameters['page'] = $this->currentPage;
         $this->uriParameters = $uriParameters;
-        $this->lastPage = (int) ceil($this->getNumberOfResults() / $queryParameters['limit']);
+        $this->lastPage = (int)ceil($this->getNumberOfResults() / $queryParameters['limit']);
     }
 
     public function getCurrentPageResults()
     {
+        return $this->getCurrentPageResultsAsync()->wait();
+    }
+
+    public function getCurrentPageResultsAsync()
+    {
         if (!$this->isResultCached()) {
             $this->queryParameters['page'] = $this->currentPage;
-            $this->currentResults = $this->adapter->getResults($this->queryParameters, $this->uriParameters);
+            $this->currentResults = $this->adapter->getResultsAsync($this->queryParameters, $this->uriParameters);
         }
 
         return $this->currentResults;

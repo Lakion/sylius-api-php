@@ -13,6 +13,7 @@ namespace spec\Sylius\Api;
 
 use PhpSpec\ObjectBehavior;
 use Sylius\Api\ApiInterface;
+use Sylius\Api\ApiResolverInterface;
 use Sylius\Api\ClientInterface;
 use Sylius\Api\Map\UriMapInterface;
 
@@ -34,17 +35,17 @@ class ApiResolverSpec extends ObjectBehavior
 
     function it_should_implement_api_resolver_interface()
     {
-        $this->shouldImplement('Sylius\Api\ApiResolverInterface');
+        $this->shouldImplement(ApiResolverInterface::class);
     }
 
     function its_resolve_function_should_return_api_interface_instance()
     {
-        $this->getApi('products')->shouldReturnAnInstanceOf('Sylius\Api\ApiInterface');
+        $this->getApi('products')->shouldReturnAnInstanceOf(ApiInterface::class);
     }
 
     function it_should_use_uri_map_to_resolve_api($uriMap)
     {
         $uriMap->getUri('products')->shouldBeCalled();
-        $this->getApi('products')->shouldReturnAnInstanceOf('Sylius\Api\ApiInterface');
+        $this->getApi('products')->shouldReturnAnInstanceOf(ApiInterface::class);
     }
 }

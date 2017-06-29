@@ -20,9 +20,9 @@ use Sylius\Api\PaginatorInterface;
 interface PaginatorFactoryInterface
 {
     /**
-     * @param  AdapterInterface   $adapter
-     * @param  array              $queryParameters
-     * @param  array              $uriParameters
+     * @param  AdapterInterface $adapter
+     * @param  array $queryParameters
+     * @param  array $uriParameters
      * @return PaginatorInterface
      */
     public function create(AdapterInterface $adapter, array $queryParameters, array $uriParameters = []);
