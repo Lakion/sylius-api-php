@@ -27,7 +27,7 @@ class ArrayUriMap implements UriMapInterface
 
     /**
      * @param array $uriMapping
-     * @param bool  $allowDefaultUris
+     * @param bool $allowDefaultUris
      */
     public function __construct(array $uriMapping, $allowDefaultUris = true)
     {

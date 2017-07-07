@@ -2,6 +2,8 @@
 
 namespace Sylius\Api;
 
+use GuzzleHttp\Promise\Promise;
+
 class ApiAdapter implements AdapterInterface
 {
     /**
@@ -14,31 +16,52 @@ class ApiAdapter implements AdapterInterface
      */
     private $cachedResults;
 
+    /**
+     * @param ApiInterface $api
+     */
     public function __construct(ApiInterface $api)
     {
         $this->api = $api;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getNumberOfResults(array $queryParameters, array $uriParameters = [])
     {
-        $result = $this->getResult($queryParameters, $uriParameters, true);
+        $result = $this->getResult($queryParameters, $uriParameters, true)->wait();
 
         return isset($result['total']) ? $result['total'] : 0;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getResults(array $queryParameters, array $uriParameters = [])
     {
-        $result = $this->getResult($queryParameters, $uriParameters);
+        return $this->getResultsAsync($queryParameters, $uriParameters)->wait();
+    }
 
-        return isset($result['_embedded']['items']) ? $result['_embedded']['items'] : array();
+    /**
+     * {@inheritdoc}
+     */
+    public function getResultsAsync(array $queryParameters, array $uriParameters = [])
+    {
+        return $this
+            ->getResult($queryParameters, $uriParameters)
+            ->then(function ($result) {
+                return isset($result['_embedded']['items'])
+                    ? $result['_embedded']['items']
+                    : [];
+            });
     }
 
     /**
      * @param array $queryParameters
      * @param array $uriParameters
-     * @param bool  $cacheResult
+     * @param bool $cacheResult
      *
-     * @return array
+     * @return Promise
      */
     private function getResult(array $queryParameters, array $uriParameters, $cacheResult = false)
     {
@@ -47,9 +70,9 @@ class ApiAdapter implements AdapterInterface
             return $this->cachedResults[$hash];
         }
 
-        $result = $this->api->getPaginated($queryParameters, $uriParameters);
+        $result = $this->api->getPaginatedAsync($queryParameters, $uriParameters);
         if ($cacheResult) {
-            $this->cachedResults = array();
+            $this->cachedResults = [];
             $this->cachedResults[$hash] = $result;
         }
 
