@@ -144,35 +144,28 @@ class GenericApi implements ApiInterface
     {
         $queryParameters['limit'] = isset($queryParameters['limit']) ? $queryParameters['limit'] : 100;
         $paginator = $this->createPaginator($queryParameters, $uriParameters);
+        $result = [];
 
-        $promise = new Promise(function() use ($paginator, $concurrency, &$promise) {
-            $result = [];
+        $promises = (function () use ($paginator) {
+            yield $paginator->getCurrentPageResultsAsync();
 
-            $promises = (function () use ($paginator) {
+            while ($paginator->hasNextPage()) {
+                $paginator->nextPage();
+
                 yield $paginator->getCurrentPageResultsAsync();
+            }
+        })();
 
-                while ($paginator->hasNextPage()) {
-                    $paginator->nextPage();
-
-                    yield $paginator->getCurrentPageResultsAsync();
-                }
-            })();
-
-            (new EachPromise($promises, [
-                'concurrency' => $concurrency,
-                'fulfilled' => function ($response) use (&$result) {
-                    $result[] = $response;
-                },
-            ]))->promise()->wait();
-
-            $return = empty($result)
+        return (new EachPromise($promises, [
+            'concurrency' => $concurrency,
+            'fulfilled' => function ($response) use (&$result) {
+                $result[] = $response;
+            },
+        ]))->promise()->then(function () use (&$result) {
+            return empty($result)
                 ? []
                 : call_user_func_array('array_merge', $result);
-
-            $promise->resolve($return);
         });
-
-        return $promise;
     }
 
     /**

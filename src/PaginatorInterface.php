@@ -20,6 +20,8 @@ interface PaginatorInterface
 {
     /**
      * @return int
+     *
+     * @throws LogicException
      */
     public function getNumberOfResults();
 
@@ -40,12 +42,17 @@ interface PaginatorInterface
 
     /**
      * Moves to the next page
+     *
      * @return void
+     *
+     * @throws LogicException
      */
     public function nextPage();
 
     /**
      * @return bool
+     *
+     * @throws LogicException
      */
     public function hasNextPage();
 
