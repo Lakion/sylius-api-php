@@ -20,6 +20,22 @@ use Sylius\Api\AdapterInterface;
  */
 class PaginatorSpec extends ObjectBehavior
 {
+    private static function promisedResponse(array $items, array $options = [])
+    {
+        $return = \array_merge([
+            'total' => count($items),
+            '_embedded' => [
+                'items' => $items,
+            ],
+        ], $options);
+
+        $promise = new Promise(function () use (&$promise, $return) {
+            $promise->resolve($return);
+        });
+
+        return $promise;
+    }
+
     function let(AdapterInterface $adapter)
     {
         $this->beConstructedWith($adapter, ['limit' => 10], []);
@@ -35,40 +51,37 @@ class PaginatorSpec extends ObjectBehavior
         $this->shouldImplement('Sylius\Api\PaginatorInterface');
     }
 
-    function it_has_limit_10_by_default(AdapterInterface $adapter, Promise $promise)
+    function it_has_limit_10_by_default(AdapterInterface $adapter)
     {
+        $return = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'];
+        $promise = self::promisedResponse($return);
+
         $this->beConstructedWith($adapter);
 
-        $return = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'];
-
-        $adapter->getNumberOfResults(['page' => 1, 'limit' => 10], [])->willReturn(20);
         $adapter->getResultsAsync(['page' => 1, 'limit' => 10], [])->willReturn($promise);
-
-        $promise->wait()->shouldBeCalled()->willReturn($return);
 
         $this->getCurrentPageResults()->shouldHaveCount(10);
     }
 
     function its_limit_can_be_specified(AdapterInterface $adapter, Promise $promise)
     {
+        $return = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o'];
+        $promise = self::promisedResponse($return);
+
         $this->beConstructedWith($adapter, ['limit' => 15]);
 
-        $return = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o'];
-
-        $adapter->getNumberOfResults(['page' => 1, 'limit' => 15], [])->willReturn(30);
         $adapter->getResultsAsync(['page' => 1, 'limit' => 15], [])->willReturn($promise);
-
-        $promise->wait()->shouldBeCalled()->willReturn($return);
 
         $this->getCurrentPageResults()->shouldHaveCount(15);
     }
 
     function its_page_can_be_specified(AdapterInterface $adapter)
     {
+        $return = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o'];
+
         $this->beConstructedWith($adapter, ['page' => 2]);
-        $adapter->getNumberOfResults(['page' => 2, 'limit' => 10], [])->willReturn(30);
-        $adapter->getResults(['page' => 2, 'limit' => 10], [])
-            ->willReturn(array('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o'));
+
+        $adapter->getResults(['page' => 2, 'limit' => 10], [])->willReturn($return);
 
         $this->getCurrentPage()->shouldEqual(2);
     }
@@ -87,61 +100,59 @@ class PaginatorSpec extends ObjectBehavior
         $this->shouldThrow('InvalidArgumentException')->during('__construct', [$adapter, ['page' => 1.5]]);
     }
 
-    function it_gets_current_page_results(AdapterInterface $adapter, Promise $promise)
+    function it_gets_current_page_results(AdapterInterface $adapter)
     {
         $return = ['a', 'b', 'c'];
+        $promise = self::promisedResponse($return);
 
-        $adapter->getNumberOfResults(['page' => 1, 'limit' => 10], [])->willReturn(3);
         $adapter->getResultsAsync(['page' => 1, 'limit' => 10], [])->willReturn($promise);
-
-        $promise->wait()->shouldBeCalled()->willReturn($return);
 
         $this->getCurrentPageResults()->shouldReturn(['a', 'b', 'c']);
     }
 
-    function it_caches_results_for_current_page(AdapterInterface $adapter, Promise $promiseOne, Promise $promiseTwo)
+    function it_caches_results_for_current_page(AdapterInterface $adapter)
     {
         $returnOne = ['a', 'b', 'c'];
-        $adapter->getNumberOfResults(['page' => 1, 'limit' => 10],[])->willReturn(3);
+        $promiseOne = self::promisedResponse($returnOne);
         $adapter->getResultsAsync(['page' => 1, 'limit' => 10], [])->shouldBeCalledTimes(1);
         $adapter->getResultsAsync(['page' => 1, 'limit' => 10], [])->willReturn($promiseOne);
-        $promiseOne->wait()->shouldBeCalled()->willReturn($returnOne);
         $this->getCurrentPageResults()->shouldReturn(['a', 'b', 'c']);
 
         $returnTwo = ['d', 'e', 'f'];
+        $promiseTwo = self::promisedResponse($returnTwo);
         $adapter->getResultsAsync(['page' => 1, 'limit' => 10], [])->willReturn($promiseTwo);
         $this->getCurrentPageResults()->shouldReturn(['a', 'b', 'c']);
     }
 
-    function it_moves_to_the_next_page(AdapterInterface $adapter, Promise $promiseOne, Promise $promiseTwo)
+    function it_moves_to_the_next_page(AdapterInterface $adapter)
     {
         $this->beConstructedWith($adapter, ['limit' => 5]);
 
-        $adapter->getNumberOfResults(['page' => 1, 'limit' => 5], [])->willReturn(8);
-
+        $returnOne = ['a', 'b', 'c', 'b', 'e'];
+        $promiseOne = self::promisedResponse($returnOne, ['total' => 8]);
         $adapter->getResultsAsync(['page' => 1, 'limit' => 5], [])->willReturn($promiseOne);
-        $promiseOne->wait()->shouldBeCalled()->willReturn(['a', 'b', 'c', 'b', 'e']);
 
+        $returnTwo = ['f', 'g', 'h'];
+        $promiseTwo = self::promisedResponse($returnTwo);
         $adapter->getResultsAsync(['page' => 2, 'limit' => 5], [])->willReturn($promiseTwo);
-        $promiseTwo->wait()->shouldBeCalled()->willReturn(['f', 'g', 'h']);
 
         $this->getCurrentPageResults()->shouldReturn(['a', 'b', 'c', 'b', 'e']);
         $this->nextPage();
         $this->getCurrentPageResults()->shouldReturn(['f', 'g', 'h']);
     }
 
-    function it_moves_to_the_previous_page(AdapterInterface $adapter, Promise $promiseOne, Promise $promiseTwo)
+    function it_moves_to_the_previous_page(AdapterInterface $adapter)
     {
         $this->beConstructedWith($adapter, ['limit' => 5]);
 
-        $adapter->getNumberOfResults(['page' => 1, 'limit' => 5], [])->willReturn(8);
+        $returnOne = ['a', 'b', 'c', 'b', 'e'];
+        $promiseOne = self::promisedResponse($returnOne, ['total' => 8]);
         $adapter->getResultsAsync(['page' => 1, 'limit' => 5], [])->shouldBeCalledTimes(2);
-
         $adapter->getResultsAsync(['page' => 1, 'limit' => 5], [])->willReturn($promiseOne);
-        $promiseOne->wait()->shouldBeCalled()->willReturn(['a', 'b', 'c', 'b', 'e']);
 
+        $returnTwo =['f', 'g', 'h'];
+        $promiseTwo = self::promisedResponse($returnTwo);
         $adapter->getResultsAsync(['page' => 2, 'limit' => 5], [])->willReturn($promiseTwo);
-        $promiseTwo->wait()->shouldBeCalled()->willReturn(['f', 'g', 'h']);
 
         $this->getCurrentPageResults()->shouldReturn(['a', 'b', 'c', 'b', 'e']);
         $this->nextPage();
@@ -162,37 +173,64 @@ class PaginatorSpec extends ObjectBehavior
 
     function it_returns_true_if_there_is_previous_page(AdapterInterface $adapter)
     {
-        $adapter->getNumberOfResults(['page' => 1, 'limit' => 10], [])->willReturn(25);
+        $this->beConstructedWith($adapter, ['limit' => 2]);
 
+        $promise = self::promisedResponse(['a', 'b'], ['total' => 3]);
+        $adapter->getResultsAsync(['page' => 1, 'limit' => 2], [])->willReturn($promise);
+
+        $this->getCurrentPageResults();
         $this->nextPage();
         $this->hasPreviousPage()->shouldReturn(true);
     }
 
     function it_gets_number_of_results(AdapterInterface $adapter)
     {
-        $adapter->getNumberOfResults(['page' => 1, 'limit' => 10], [])->willReturn(5);
+        $promise = self::promisedResponse([], ['total' => 3]);
+        $adapter->getResultsAsync(['page' => 1, 'limit' => 10], [])->willReturn($promise);
 
-        $this->getNumberOfResults()->shouldReturn(5);
+        $this->getCurrentPageResults();
+        $this->getNumberOfResults()->shouldReturn(3);
     }
 
     function it_returns_false_if_there_is_no_next_page(AdapterInterface $adapter)
     {
-        $adapter->getNumberOfResults(['page' => 1, 'limit' => 10], [])->willReturn(8);
+        $promise = self::promisedResponse([], ['total' => 10]);
+        $adapter->getResultsAsync(['page' => 1, 'limit' => 10], [])->willReturn($promise);
 
+        $this->getCurrentPageResults();
         $this->hasNextPage()->shouldReturn(false);
     }
 
     function it_returns_true_if_there_is_next_page(AdapterInterface $adapter)
     {
-        $adapter->getNumberOfResults(['page' => 1, 'limit' => 10], [])->willReturn(25);
+        $promise = self::promisedResponse([], ['total' => 15]);
+        $adapter->getResultsAsync(['page' => 1, 'limit' => 10], [])->willReturn($promise);
 
+        $this->getCurrentPageResults();
         $this->hasNextPage()->shouldReturn(true);
     }
 
     function it_throws_exception_when_can_not_move_to_the_next_page(AdapterInterface $adapter)
     {
-        $adapter->getNumberOfResults(['page' => 1, 'limit' => 10], [])->willReturn(8);
+        $promise = self::promisedResponse([], ['total' => 10]);
+        $adapter->getResultsAsync(['page' => 1, 'limit' => 10], [])->willReturn($promise);
 
         $this->shouldThrow('LogicException')->during('nextPage', []);
+    }
+
+    function it_throws_exception_when_checking_next_page_if_no_results_cached(AdapterInterface $adapter)
+    {
+        $promise = self::promisedResponse([], ['total' => 10]);
+        $adapter->getResultsAsync(['page' => 1, 'limit' => 10], [])->willReturn($promise);
+
+        $this->shouldThrow('LogicException')->during('hasNextPage', []);
+    }
+
+    function it_throws_exception_when_getting_total_results_if_no_results_cached(AdapterInterface $adapter)
+    {
+        $promise = self::promisedResponse([], ['total' => 10]);
+        $adapter->getResultsAsync(['page' => 1, 'limit' => 10], [])->willReturn($promise);
+
+        $this->shouldThrow('LogicException')->during('getNumberOfResults', []);
     }
 }
