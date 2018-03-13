@@ -20,7 +20,7 @@ use Sylius\Api\Paginator;
 class PaginatorFactory implements PaginatorFactoryInterface
 {
     /**
-     * {@inheritdoc }
+     * {@inheritdoc}
      */
     public function create(AdapterInterface $adapter, array $queryParameters, array $uriParameters = [])
     {

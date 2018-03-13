@@ -3,9 +3,9 @@
     "description": "Sylius API PHP client library",
     "license": "MIT",
     "require": {
-        "php": ">=5.4.0",
-        "guzzlehttp/guzzle": "~5.0",
-        "commerceguys/guzzle-oauth2-plugin": "~2.0"
+        "php": "^5.5.9|^7.0",
+        "guzzlehttp/guzzle": "^6.0",
+        "symfony/serializer": "~2.3|~3.0"
     },
     "require-dev": {
         "phpspec/phpspec": "~2.0"

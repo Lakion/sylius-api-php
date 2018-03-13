@@ -2,6 +2,8 @@
 
 namespace Sylius\Api;
 
+use GuzzleHttp\Promise\PromiseInterface;
+
 class ApiAdapter implements AdapterInterface
 {
     /**
@@ -10,49 +12,26 @@ class ApiAdapter implements AdapterInterface
     private $api;
 
     /**
-     * @var array
+     * @param ApiInterface $api
      */
-    private $cachedResults;
-
     public function __construct(ApiInterface $api)
     {
         $this->api = $api;
     }
 
-    public function getNumberOfResults(array $queryParameters, array $uriParameters = [])
-    {
-        $result = $this->getResult($queryParameters, $uriParameters, true);
-
-        return isset($result['total']) ? $result['total'] : 0;
-    }
-
+    /**
+     * {@inheritdoc}
+     */
     public function getResults(array $queryParameters, array $uriParameters = [])
     {
-        $result = $this->getResult($queryParameters, $uriParameters);
-
-        return isset($result['_embedded']['items']) ? $result['_embedded']['items'] : array();
+        return $this->getResultsAsync($queryParameters, $uriParameters)->wait();
     }
 
     /**
-     * @param array $queryParameters
-     * @param array $uriParameters
-     * @param bool  $cacheResult
-     *
-     * @return array
+     * {@inheritdoc}
      */
-    private function getResult(array $queryParameters, array $uriParameters, $cacheResult = false)
+    public function getResultsAsync(array $queryParameters, array $uriParameters = [])
     {
-        $hash = md5(serialize($queryParameters) . serialize($uriParameters));
-        if (isset($this->cachedResults[$hash])) {
-            return $this->cachedResults[$hash];
-        }
-
-        $result = $this->api->getPaginated($queryParameters, $uriParameters);
-        if ($cacheResult) {
-            $this->cachedResults = array();
-            $this->cachedResults[$hash] = $result;
-        }
-
-        return $result;
+        return $this->api->getPaginatedAsync($queryParameters, $uriParameters);
     }
 }

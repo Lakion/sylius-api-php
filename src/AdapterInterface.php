@@ -20,15 +20,15 @@ interface AdapterInterface
      * @param  array $queryParameters
      * @param  array $uriParameters
      *
-     * @return int
+     * @return array
      */
-    public function getNumberOfResults(array $queryParameters, array $uriParameters = []);
+    public function getResults(array $queryParameters, array $uriParameters = []);
 
     /**
      * @param  array $queryParameters
      * @param  array $uriParameters
      *
-     * @return array
+     * @return Promise
      */
-    public function getResults(array $queryParameters, array $uriParameters = []);
+    public function getResultsAsync(array $queryParameters, array $uriParameters = []);
 }
