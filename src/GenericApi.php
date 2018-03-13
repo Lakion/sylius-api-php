@@ -158,6 +158,9 @@ class GenericApi implements ApiInterface
 
         return (new EachPromise($promises, [
             'concurrency' => $concurrency,
+            'rejected' => function (\Exception $e) {
+                throw $e;
+            },
             'fulfilled' => function ($response) use (&$result) {
                 $result[] = $response;
             },
